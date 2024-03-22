@@ -1,0 +1,13 @@
+# General
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode
+.idea
+
+# System Files
+*.log
+
+# Docker
+docker-compose.override.yml
