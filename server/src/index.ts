@@ -10,6 +10,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './database';
 import carRoutes from './routes/carRoutes';
+import userRoutes from './routes/userRoutes';
 dotenv.config(); // Load environment variables from .env file
 
 const app = express();
@@ -23,6 +24,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/cars', carRoutes); 
+app.use('/api/users', userRoutes);
 
 // Error Handling (Basic Example)
 app.use((err: AppError, req: Request, res: Response, next: NextFunction) => { 
