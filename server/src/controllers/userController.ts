@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 import mongoose from "mongoose";
 
-// Retrieve all users
+// Get all users
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find();
@@ -16,7 +16,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-// Retrieve user by id
+// Get user by id
 export const getUserById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
