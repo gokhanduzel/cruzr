@@ -8,7 +8,12 @@ const carSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   condition: { type: String, enum: ['New', 'Used', 'Excellent'], default: 'Used' },
   description: { type: String },
-  images: { type: [String] } 
+  images: { type: [String] },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User' // This tells Mongoose which model to use during population
+  },
 });
 
 const Car = mongoose.model('Car', carSchema); 
