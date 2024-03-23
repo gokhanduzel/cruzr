@@ -2,7 +2,41 @@ import { Request, Response } from "express";
 import User from "../models/user";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import 'dotenv/config';
+import "dotenv/config";
+import mongoose from "mongoose";
+
+// Retrieve all users
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    console.error((err as Error).message); // Cast err as an Error object
+    res.status(500).send("Server Error");
+  }
+};
+
+// Retrieve user by id
+export const getUserById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  // Check if the ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid ID format" });
+  }
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 // User Registration
 export const registerUser = async (req: Request, res: Response) => {
@@ -21,12 +55,10 @@ export const registerUser = async (req: Request, res: Response) => {
       .status(201)
       .json({ message: "User created successfully", userId: user._id });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error registering user",
-        error: (error as Error).message,
-      });
+    res.status(500).json({
+      message: "Error registering user",
+      error: (error as Error).message,
+    });
   }
 };
 

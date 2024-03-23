@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import Car from "../models/car";
 import mongoose from "mongoose";
 
+
+// Retrieve all cars
 export const getAllCars = async (req: Request, res: Response) => {
   try {
     const cars = await Car.find();
@@ -12,6 +14,7 @@ export const getAllCars = async (req: Request, res: Response) => {
   }
 };
 
+// Retrieve a single car by id
 export const getCarById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -28,8 +31,8 @@ export const getCarById = async (req: Request, res: Response) => {
     }
 
     res.json(car);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
