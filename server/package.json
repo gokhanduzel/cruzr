@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec ts-node src/index.ts",
     "start": "node dist/index.js",
-    "build": "tsc"
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
+    "dev": "nodemon --exec 'ts-node --files --project tsconfig.json' src/index.ts"
   },
   "keywords": [],
   "author": "",

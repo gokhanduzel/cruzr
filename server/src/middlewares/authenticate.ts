@@ -1,8 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const authenticate = (req: Request, res: Response, next: NextFunction) => {
-  // Get the token from the Authorization header
+  // Check if there's actually an Authorization header
+  if (!req.headers.authorization) {
+    // If not, skip authentication for this execution.
+    return next();
+  }
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN_HERE
 
@@ -11,14 +16,25 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
   jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
     if (err) return res.sendStatus(403); // Invalid token
 
-    if (typeof decoded === "object" && decoded !== null && "id" in decoded) {
-      req.user = { id: decoded.id }; // Safely assign knowing decoded has an id
-      next();
-    } else {
-      // Handle case where decoded doesn't match the expected shape
+    // Stricter type guard
+    if (!isJwtWithIdPayload(decoded)) {
       return res.sendStatus(403);
     }
+    
+    const userId = new mongoose.Types.ObjectId(decoded.id.toString());
+    req.user = { id: userId } ;
+    console.log("req.user: ", req.user);
+    console.log('userId: ', userId);
+    next();
   });
 };
+
+// Helper function for type check
+function isJwtWithIdPayload(
+    payload: unknown
+): payload is JwtPayload & { id: mongoose.Schema.Types.ObjectId } { 
+    return typeof payload === 'object' && payload !== null && 'id' in payload;
+}
+
 
 export default authenticate;

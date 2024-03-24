@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 3000;
 connectDB(); 
 
 // Basic Middleware
-app.use(express.json()); 
+app.use(express.json());
 
 // Routes
 app.use('/api/cars', carRoutes); 

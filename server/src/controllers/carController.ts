@@ -2,8 +2,7 @@ import { Request, Response } from "express";
 import Car from "../models/car";
 import mongoose from "mongoose";
 
-
-// Retrieve all cars
+// Get all cars
 export const getAllCars = async (req: Request, res: Response) => {
   try {
     const cars = await Car.find();
@@ -14,7 +13,7 @@ export const getAllCars = async (req: Request, res: Response) => {
   }
 };
 
-// Retrieve a single car by id
+// Get a single car by id
 export const getCarById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -38,4 +37,32 @@ export const getCarById = async (req: Request, res: Response) => {
 };
 
 // Create a car listing
+export const createCarListing = async (req: Request, res: Response) => {
+  const { make, model, year, mileage, price, condition, description, images } =
+    req.body;
+  console.log(req);
+  if (!req.user) {
+    return res.status(401).send("Unauthorized - user not found in request");
+  }
+  const userId = req.user.id; // Assuming the authenticate middleware has already added `user` to `req`
 
+  try {
+    const newCar = new Car({
+      make,
+      model,
+      year,
+      mileage,
+      price,
+      condition,
+      description,
+      images,
+      user: userId, // Link the car to the user who is creating it
+    });
+
+    const savedCar = await newCar.save();
+    res.status(201).json(savedCar);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to create car listing" });
+  }
+};
