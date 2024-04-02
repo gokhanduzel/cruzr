@@ -67,26 +67,35 @@ export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    // Check for user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
-      expiresIn: "1h",
+    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, { expiresIn: "15m" });
+    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: "7d" });
+
+    // Update the user document with the new refresh token
+    await User.findByIdAndUpdate(user._id, { refreshToken });
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 900000,
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 604800000,
     });
 
-    res.json({
+    res.status(200).json({
       message: "Login successful",
-      token,
       user: {
         id: user._id,
         username: user.username,
@@ -97,4 +106,15 @@ export const loginUser = async (req: Request, res: Response) => {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
+};
+
+// User logout
+export const logoutUser = async (req: Request, res: Response) => {
+  // Clear the accessToken cookie
+  res.clearCookie('accessToken');
+  
+  // If using refresh tokens, clear that cookie as well
+  res.clearCookie('refreshToken');
+
+  res.json({ message: "Logout successful" });
 };

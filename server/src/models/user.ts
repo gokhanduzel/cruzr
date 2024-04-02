@@ -1,22 +1,27 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
+interface IUser extends Document {
+  username: string;
+  email: string;
+  password: string;
+  refreshToken?: string; // Optional field for refresh token
+}
+
+const UserSchema: Schema = new Schema({
+  username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  // Add additional fields as necessary
-}, { timestamps: true });
+  refreshToken: { type: String } // Add this line
+});
 
-// Middleware to hash password before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+// Pre-save hook to hash password
+UserSchema.pre<IUser>('save', async function (next) {
+  if (this.isModified('password')) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
   next();
 });
 
-const User = mongoose.model('User', userSchema);
-
-export default User;
+export default mongoose.model<IUser>('User', UserSchema);
