@@ -71,6 +71,11 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li className="p-4">
+                  <Link to="/createlisting" className="text-white">
+                    Create Listing
+                  </Link>
+                </li>
+                <li className="p-4">
                   <button className="text-white" onClick={handleLogoutClick}>
                     Logout
                   </button>

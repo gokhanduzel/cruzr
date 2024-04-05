@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import 'dotenv/config'; 
-import connectDB from './database'; // Path to your connectDB file
-import CarMakeModel from './models/carMakeModel'; // Path to your schema file
-import { carMakesModels } from './utils/carMakesModelsData'; 
+import connectDB from '../database'; // Path to your connectDB file
+import CarMakeModel from '../models/carMakeModel'; // Path to your schema file
+import { carMakesModels } from './carMakesModelsData'; 
 
 const seedDatabase = async () => {
     try {
