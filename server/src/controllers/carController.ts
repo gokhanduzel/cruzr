@@ -1,14 +1,15 @@
 import { Request, Response } from "express";
 import Car from "../models/car";
+import CarMakeModel from "../models/carMakeModel";
 import mongoose from "mongoose";
 
 // Get all cars
 export const getAllCars = async (req: Request, res: Response) => {
   try {
-    const cars = await Car.find();
+    const cars = await Car.find().populate('make', 'make -_id'); // Populate the make name
     res.json(cars);
   } catch (err) {
-    console.error((err as Error).message); // Cast err as an Error object
+    console.error((err as Error).message);
     res.status(500).send("Server Error");
   }
 };
@@ -17,14 +18,12 @@ export const getAllCars = async (req: Request, res: Response) => {
 export const getCarById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  // Check if the ID is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: "Invalid ID format" });
   }
 
   try {
-    const car = await Car.findById(id);
-
+    const car = await Car.findById(id).populate('make', 'make -_id'); // Populate the make name
     if (!car) {
       return res.status(404).json({ message: "Car not found" });
     }
@@ -38,22 +37,31 @@ export const getCarById = async (req: Request, res: Response) => {
 
 // Create a car listing
 export const createCarListing = async (req: Request, res: Response) => {
-  const { make, model, year, mileage, price, condition, description, images } =
-    req.body;
-  console.log(req);
+  const { make, carModel, year, mileage, price, description, images } = req.body;
+
   if (!req.user) {
     return res.status(401).send("Unauthorized - user not found in request");
   }
   const userId = req.user.id; // Assuming the authenticate middleware has already added `user` to `req`
 
   try {
+    // Validate the make
+    const carMakeModelDoc = await CarMakeModel.findById(make);
+    if (!carMakeModelDoc) {
+      return res.status(400).json({ message: "Invalid car make." });
+    }
+
+    // Optionally, validate the model (now carModel) against the models array in CarMakeModel if necessary
+    if (!carMakeModelDoc.models.includes(carModel)) {
+      return res.status(400).json({ message: "Invalid model for the given make." });
+    }
+
     const newCar = new Car({
-      make,
-      model,
+      make, // This is now an ObjectId referencing a CarMakeModel document
+      carModel, // Ensure this matches the property name in your Car schema
       year,
       mileage,
       price,
-      condition,
       description,
       images,
       user: userId, // Link the car to the user who is creating it
@@ -101,14 +109,12 @@ export const getCarsByUser = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).send("Unauthorized - User not recognized");
   }
-  const userId = req.user.id; // Assuming the authenticate middleware has already added `user` to `req`
+  const userId = req.user.id;
 
   try {
-    const userCars = await Car.find({ user: userId });
+    const userCars = await Car.find({ user: userId }).populate('make', 'make -_id'); // Populate the make name
     if (userCars.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No car listings found for this user" });
+      return res.status(404).json({ message: "No car listings found for this user" });
     }
     res.json(userCars);
   } catch (error) {
@@ -116,3 +122,4 @@ export const getCarsByUser = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+

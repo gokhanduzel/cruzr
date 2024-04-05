@@ -14,7 +14,6 @@ const router = express.Router();
 router.get("/mycars", authenticate, getCarsByUser);
 router.get("/", getAllCars);
 router.get("/id/:id", getCarById);
-
 router.post("/createcar", authenticate, createCarListing);
 router.delete("/deletecar/:id", authenticate, deleteCarListing);
 
