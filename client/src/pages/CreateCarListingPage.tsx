@@ -44,6 +44,38 @@ const CreateCarListingPage = () => {
     fetchCarMakeModels();
   }, []);
 
+  useEffect(() => {
+    // Load the Cloudinary script
+    const script = document.createElement("script");
+    script.src = "https://upload-widget.cloudinary.com/global/all.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      // Cleanup the script when the component unmounts
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleUploadWidget = () => {
+    (window as any).cloudinary.openUploadWidget(
+      {
+        cloudName: "your_cloud_name",
+        uploadPreset: "your_preset",
+        sources: ["local", "url", "camera"],
+        cropping: true,
+      },
+      (error: any, result: { event: string; info: { url: string } }) => {
+        if (!error && result && result.event === "success") {
+          // Update your state or form data with the image URL
+          console.log("Upload Successful:", result.info.url);
+          setImageInput((prev) =>
+            prev ? `${prev},${result.info.url}` : result.info.url
+          );
+        }
+      }
+    );
+  };
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -196,23 +228,13 @@ const CreateCarListingPage = () => {
           />
         </div>
 
-        <div>
-          <label
-            htmlFor="images"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Images (comma-separated URLs)
-          </label>
-          <input
-            id="images"
-            name="images"
-            type="text"
-            value={imageInput}
-            onChange={handleChange}
-            placeholder="Image URLs, comma-separated"
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={handleUploadWidget}
+          className="mb-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Upload Images
+        </button>
 
         <button
           type="submit"
