@@ -8,6 +8,7 @@ import {
 } from "../features/registration/registrationSlice";
 import { useSelector } from "react-redux"; // Import useSelector
 import { selectRegistrationState } from "../features/registration/registrationSlice";
+import { Link } from "react-router-dom";
 
 const RegisterPage: React.FC = () => {
   // Fetch registration state from Redux
@@ -50,9 +51,9 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-100">
             Create a new account
           </h2>
         </div>
@@ -107,14 +108,24 @@ const RegisterPage: React.FC = () => {
                 onChange={(e) => handleInputChange("password", e.target.value)}
               />
             </div>
-            <div>
-              <button
-                type="submit"
-                className="group relative w-full flex justify-center py-2 px-4 mt-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Create account
-              </button>
-            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 mt-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Create account
+            </button>
+          </div>
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-blue-700 hover:underline dark:text-blue-500"
+            >
+              Sign in
+            </Link>
           </div>
         </form>
       </div>

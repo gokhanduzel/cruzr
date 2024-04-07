@@ -7,6 +7,7 @@ import connectDB from './database';
 import carRoutes from './routes/carRoutes';
 import userRoutes from './routes/userRoutes';
 import carMakeModelRoutes from './routes/carMakeModelRoutes';
+import authenticateRoutes from './routes/authenticateRoutes';
 dotenv.config(); // Load environment variables from .env file
 
 class AppError extends Error {
@@ -40,6 +41,7 @@ app.use(cors({
 app.use('/api/cars', carRoutes); 
 app.use('/api/users', userRoutes);
 app.use('/api/makemodel', carMakeModelRoutes);
+app.use('/api/auth', authenticateRoutes);
 
 // Error Handling (Basic Example)
 app.use((err: AppError, req: Request, res: Response, next: NextFunction) => { 

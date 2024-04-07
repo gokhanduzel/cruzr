@@ -10,6 +10,8 @@ interface AuthState {
   userDetails: UserDetails | null;
   isLoadingUserDetails: boolean;
   errorUserDetails: string | null;
+  isLoadingAuthStatus: boolean; // Add loading state for auth status
+  errorAuthStatus: string | null; // Add error state for auth status
 }
 
 const initialState: AuthState = {
@@ -17,6 +19,8 @@ const initialState: AuthState = {
   userDetails: null,
   isLoadingUserDetails: false,
   errorUserDetails: null,
+  isLoadingAuthStatus: false, // Initialize loading state
+  errorAuthStatus: null, // Initialize error state
 };
 
 // Async thunk for fetching user details
@@ -34,6 +38,16 @@ export const fetchUserDetails = createAsyncThunk(
   }
 );
 
+// Async thunk for verifying authentication status
+export const verifyAuth = createAsyncThunk('auth/verifyStatus', async (_, thunkAPI) => {
+  try {
+      const response = await authService.checkAuthStatus();
+      return response.data; 
+  } catch (error) {
+      return thunkAPI.rejectWithValue('User not authenticated');
+  }
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -48,6 +62,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Handle fetching user details
       .addCase(fetchUserDetails.pending, (state) => {
         state.isLoadingUserDetails = true;
         state.errorUserDetails = null;
@@ -55,10 +70,25 @@ const authSlice = createSlice({
       .addCase(fetchUserDetails.fulfilled, (state, action) => {
         state.isLoadingUserDetails = false;
         state.userDetails = action.payload;
+        state.isLoggedIn = true; // Assume user is logged in if details are successfully fetched
       })
       .addCase(fetchUserDetails.rejected, (state, action) => {
         state.isLoadingUserDetails = false;
         state.errorUserDetails = action.payload as string;
+      })
+      // Handle verifying authentication status
+      .addCase(verifyAuth.pending, (state) => {
+        state.isLoadingAuthStatus = true;
+        state.errorAuthStatus = null;
+      })
+      .addCase(verifyAuth.fulfilled, (state) => {
+        state.isLoadingAuthStatus = false;
+        state.isLoggedIn = true; // Assume user is logged in if auth status is verified
+      })
+      .addCase(verifyAuth.rejected, (state, action) => {
+        state.isLoadingAuthStatus = false;
+        state.isLoggedIn = false; // Set user as not logged in if auth verification fails
+        state.errorAuthStatus = action.payload as string;
       });
   },
 });
@@ -70,5 +100,7 @@ export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn;
 export const selectCurrentUserDetails = (state: RootState) => state.auth.userDetails;
 export const selectUserDetailsLoading = (state: RootState) => state.auth.isLoadingUserDetails;
 export const selectUserDetailsError = (state: RootState) => state.auth.errorUserDetails;
+export const selectIsAuthStatusLoading = (state: RootState) => state.auth.isLoadingAuthStatus; // New selector for auth status loading
+export const selectAuthStatusError = (state: RootState) => state.auth.errorAuthStatus; // New selector for auth status error
 
 export default authSlice.reducer;
