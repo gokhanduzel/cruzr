@@ -2,7 +2,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import CarMakeModel from './carMakeModel'; // Ensure correct import path
 
-interface ICar extends Document {
+export interface ICar extends Document {
   make: Schema.Types.ObjectId; // Reference to CarMakeModel
   carModel: string; // Use 'carModel' to avoid naming conflicts
   year: number;

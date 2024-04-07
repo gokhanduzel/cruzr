@@ -1,15 +1,29 @@
 import { Request, Response } from "express";
 import Car from "../models/car";
 import CarMakeModel from "../models/carMakeModel";
+import { ICar } from "../models/car";
 import mongoose from "mongoose";
 
-// Get all cars
-export const getAllCars = async (req: Request, res: Response) => {
+// Function to transform car document for response
+const transformCarDocument = (car: ICar): any => {
+  const transformedCar = car.toObject({ virtuals: true });
+
+  if (transformedCar.make && typeof transformedCar.make === 'object') {
+    // Safely transform the make object to string if populated
+    transformedCar.make = transformedCar.make.make;
+  }
+
+  return transformedCar;
+};
+
+// Use this function in your controller when preparing cars for response
+export const getAllCars = async (req: Request, res: Response): Promise<void> => {
   try {
-    const cars = await Car.find().populate('make', 'make -_id'); // Populate the make name
-    res.json(cars);
+    const cars = await Car.find().populate('make', 'make -_id');
+    const transformedCars = cars.map(transformCarDocument);
+    res.json(transformedCars);
   } catch (err) {
-    console.error((err as Error).message);
+    console.error("Error fetching cars:", err);
     res.status(500).send("Server Error");
   }
 };
