@@ -31,7 +31,6 @@ function App() {
           <Route path="/myprofile" element={<MyProfilePage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/createlisting" element={<CreateCarListingPage />} />
-          {/* Define other routes/pages as needed */}
         </Routes>
       </div>
     </Router>

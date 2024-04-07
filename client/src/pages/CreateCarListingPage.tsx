@@ -13,7 +13,7 @@ const CreateCarListingPage = () => {
   const [carMakeModels, setCarMakeModels] = useState<CarMakeModelData[]>([]);
   const [imageInput, setImageInput] = useState("");
   const [formData, setFormData] = useState<Omit<CarData, "_id" | "user">>({
-    make: "",
+    make: '',
     carModel: "",
     year: 0,
     mileage: 0,
