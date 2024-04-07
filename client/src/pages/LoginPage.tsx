@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { setLoggedIn } from "../features/auth/authSlice";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { selectIsLoggedIn, setLoggedIn } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import * as authService from "../features/auth/authService";
 import { Link } from "react-router-dom";
@@ -10,6 +10,14 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState<string>("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+
+  useEffect(() => {
+    // If the user is already logged in, redirect them to the homepage
+    if (isLoggedIn) {
+      navigate("/");
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
