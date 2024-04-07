@@ -18,14 +18,17 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 // Get user by id
 export const getUserById = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  if (!req.user) {
+    return res.status(401).send("Unauthorized - user not found in request");
+  }
 
+  const userId = req.user.id;
   // Check if the ID is a valid ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).json({ message: "Invalid ID format" });
   }
   try {
-    const user = await User.findById(id);
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });

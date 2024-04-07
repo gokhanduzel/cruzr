@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import * as authService from "../features/auth/authService";
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState<string>(""); // Changed from username to email
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -16,7 +16,6 @@ const LoginPage: React.FC = () => {
       await authService.login(email, password); // Using email to login
       dispatch(setLoggedIn(true));
       navigate('/');
-      // Optionally redirect the user to a different page
     } catch (error) {
       console.error(error);
       // Consider displaying an error message to the user
@@ -35,17 +34,17 @@ const LoginPage: React.FC = () => {
           <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="email" className="sr-only">Email</label> {/* Updated label */}
+              <label htmlFor="email" className="sr-only">Email</label>
               <input
-                id="email" // Updated id
-                name="email" // Updated name
-                type="email" // Updated type for email validation
+                id="email" 
+                name="email" 
+                type="email" 
                 autoComplete="email"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 mt-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email" // Updated placeholder
+                placeholder="Email" 
                 value={email}
-                onChange={(e) => setEmail(e.target.value)} // Updated setter
+                onChange={(e) => setEmail(e.target.value)} 
               />
             </div>
             <div>

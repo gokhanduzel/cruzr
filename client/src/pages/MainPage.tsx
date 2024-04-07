@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CarCard from "../components/CarCard";
 import { CarData } from "../types/car";
-import axios from "axios"; // Import Axios
+import axios from "axios";
 
 const MainPage: React.FC = () => {
     const [cars, setCars] = useState<CarData[]>([]);
@@ -11,10 +11,10 @@ const MainPage: React.FC = () => {
         try {
           const result = await axios.get("http://localhost:3000/api/cars");
           
-          // Map over the fetched data and adjust the `make` field
+          // Mapping over the fetched data and adjusting the `make` field
           const transformedCars = result.data.map((car: any) => ({
             ...car,
-            make: car.make.make, // Simplify the make structure
+            make: car.make.make,
           }));
   
           setCars(transformedCars);

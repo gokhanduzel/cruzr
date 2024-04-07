@@ -1,6 +1,6 @@
 export interface CarData {
   _id?: string; 
-  make: string; 
+  make: { make: string }; 
   carModel: string; 
   year: number;
   mileage: number;

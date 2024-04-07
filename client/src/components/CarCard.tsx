@@ -14,7 +14,7 @@ const CarCard: React.FC<CarCardProps> = ({ carData }) => {
       )}
 
       <div className="card-content">
-        <h3>{carData.make} {carData.carModel} ({carData.year})</h3> 
+        <h3>{carData.make.make} {carData.carModel} ({carData.year})</h3> 
         <p><strong>Price:</strong> ${carData.price}</p>
         <p><strong>Mileage:</strong> {carData.mileage.toLocaleString()}</p> 
         {carData.description && <p>{carData.description}</p>} {/* Display description if it exists */}

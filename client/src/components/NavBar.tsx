@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { selectIsLoggedIn } from "../features/auth/authSlice";
@@ -11,6 +11,7 @@ const Navbar = () => {
   const [nav, setNav] = useState<boolean>(false);
   const isLoggedIn = useSelector(selectIsLoggedIn); // Use Redux state
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleNav = () => {
     setNav(!nav);
@@ -23,9 +24,7 @@ const Navbar = () => {
       await authService.logout();
       dispatch(setLoggedIn(false));
       setNav(false);
-      // Optionally redirect the user to a different page, like the homepage
-      // This can be done using history.push('/') if you're using react-router-dom v5
-      // or navigate('/') with useNavigate hook in react-router-dom v6
+      navigate('/');
     } catch (error) {
       console.error(error);
       // Consider displaying an error message to the user

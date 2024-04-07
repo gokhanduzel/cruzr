@@ -1,5 +1,5 @@
 import { useEffect, useState, ChangeEvent, FormEvent } from "react";
-import { useNavigate } from "react-router-dom"; // For redirecting after successful listing creation
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectIsLoggedIn } from "../features/auth/authSlice";
 import axios from "axios";
@@ -59,8 +59,8 @@ const CreateCarListingPage = () => {
   const handleUploadWidget = () => {
     (window as any).cloudinary.openUploadWidget(
       {
-        cloudName: "your_cloud_name",
-        uploadPreset: "your_preset",
+        cloudName: "dkqsznawg",
+        uploadPreset: "car_listing_images",
         sources: ["local", "url", "camera"],
         cropping: true,
       },

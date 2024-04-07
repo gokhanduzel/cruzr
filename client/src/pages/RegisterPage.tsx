@@ -38,7 +38,6 @@ const RegisterPage: React.FC = () => {
     } catch (error) {
       console.error(error);
       dispatch(setRegistering(false));
-      // Consider handling the error, e.g., by dispatching setErrors
     }
   };
 
