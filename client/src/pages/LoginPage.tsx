@@ -22,12 +22,11 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await authService.login(email, password); // Using email to login
+      await authService.login(email, password); 
       dispatch(setLoggedIn(true));
       navigate("/");
     } catch (error) {
       console.error(error);
-      // Consider displaying an error message to the user
     }
   };
 

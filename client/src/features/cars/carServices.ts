@@ -3,6 +3,18 @@ import { CarData } from "../../types/car";
 
 const API_URL = "http://localhost:3000/api/cars";
 
+// Fetch all cars with optional filters
+export const fetchAllCars = async (filters = {}) => {
+  const query = new URLSearchParams(filters).toString();
+  try {
+    const response = await axios.get(`${API_URL}?${query}`, { withCredentials: true });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching cars with filters:", error);
+    throw error; // Re-throw the error to be handled by the calling function
+  }
+};
+
 // Create a car listing with error handling
 export const createCarListing = async (carData: CarData) => {
   try {

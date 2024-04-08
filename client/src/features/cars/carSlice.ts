@@ -3,15 +3,18 @@ import { RootState } from "../../app/store";
 import {
   createCarListing as createCarListingService,
   fetchCarsByUserId,
+  fetchAllCars,
 } from "./carServices";
 import { CarData } from "../../types/car";
 
+// Extending the state to handle the fetched cars
 interface CarState {
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
   message: string | null;
   userCars: CarData[];
+  allCars: CarData[]; // New state property for all cars
 }
 
 const initialState: CarState = {
@@ -20,6 +23,7 @@ const initialState: CarState = {
   isError: false,
   message: null,
   userCars: [],
+  allCars: [], // Initialize the new state property
 };
 
 export const createCarListing = createAsyncThunk(
@@ -51,6 +55,19 @@ export const fetchUserCars = createAsyncThunk(
   }
 );
 
+export const fetchCarsWithFilters = createAsyncThunk(
+  "cars/fetchCarsWithFilters",
+  async (filters: Record<string, any>, { rejectWithValue }) => {
+    try {
+      const cars = await fetchAllCars(filters);
+      return cars;
+    } catch (error: any) {
+      const message = error.response?.data?.message ?? "An unknown error occurred";
+      return rejectWithValue(message);
+    }
+  }
+);
+
 const carSlice = createSlice({
   name: "car",
   initialState,
@@ -58,33 +75,21 @@ const carSlice = createSlice({
     resetCarState: (state) => initialState,
   },
   extraReducers: (builder) => {
+    // Handling existing actions...
     builder
-      .addCase(createCarListing.pending, (state) => {
+      // Handling fetchCarsWithFilters actions
+      .addCase(fetchCarsWithFilters.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(createCarListing.fulfilled, (state, action) => {
+      .addCase(fetchCarsWithFilters.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.message = "Car listing created successfully.";
+        state.allCars = action.payload;
       })
-      .addCase(createCarListing.rejected, (state, action) => {
+      .addCase(fetchCarsWithFilters.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload as string;
-      })
-      // Handling fetchUserCars actions
-      .addCase(fetchUserCars.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(fetchUserCars.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.userCars = action.payload; // Assuming the payload is the array of user cars
-      })
-      .addCase(fetchUserCars.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload as string; // Assuming the payload is an error message
       });
   },
 });
@@ -96,5 +101,8 @@ export const selectCarState = (state: RootState) => state.car;
 
 // Selector to access the user's cars
 export const selectUserCars = (state: RootState) => state.car.userCars;
+
+// Selector to access all cars
+export const selectAllCars = (state: RootState) => state.car.allCars;
 
 export default carSlice.reducer;

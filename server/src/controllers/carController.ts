@@ -16,10 +16,47 @@ const transformCarDocument = (car: ICar): any => {
   return transformedCar;
 };
 
-// Use this function in your controller when preparing cars for response
 export const getAllCars = async (req: Request, res: Response): Promise<void> => {
   try {
-    const cars = await Car.find().populate('make', 'make -_id');
+    // Extract query parameters
+    let { make, model, yearMin, yearMax, mileageMin, mileageMax, priceMin, priceMax } = req.query;
+
+    let query: any = {};
+
+    // Ensure `make` is treated as a string for the query
+    if (typeof make === 'string' || make instanceof String) {
+      // Find the ObjectId(s) for the make(s)
+      const makeObjects = await CarMakeModel.find({
+        "make": { $regex: make as string, $options: "i" }
+      });
+      if (makeObjects.length > 0) {
+        query.make = { $in: makeObjects.map(obj => obj._id) };
+      }
+    }
+
+    if (model) {
+      query.carModel = model;
+    }
+
+    if (yearMin || yearMax) {
+      query.year = {};
+      if (yearMin) query.year.$gte = parseInt(yearMin as string);
+      if (yearMax) query.year.$lte = parseInt(yearMax as string);
+    }
+
+    if (mileageMin || mileageMax) {
+      query.mileage = {};
+      if (mileageMin) query.mileage.$gte = parseInt(mileageMin as string);
+      if (mileageMax) query.mileage.$lte = parseInt(mileageMax as string);
+    }
+
+    if (priceMin || priceMax) {
+      query.price = {};
+      if (priceMin) query.price.$gte = parseInt(priceMin as string);
+      if (priceMax) query.price.$lte = parseInt(priceMax as string);
+    }
+
+    const cars = await Car.find(query).populate('make', 'make -_id');
     const transformedCars = cars.map(transformCarDocument);
     res.json(transformedCars);
   } catch (err) {
@@ -27,6 +64,7 @@ export const getAllCars = async (req: Request, res: Response): Promise<void> => 
     res.status(500).send("Server Error");
   }
 };
+
 
 // Get a single car by id
 export const getCarById = async (req: Request, res: Response) => {
