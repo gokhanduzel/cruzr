@@ -47,6 +47,7 @@ export const fetchUserCars = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const data = await fetchCarsByUserId();
+      console.log(data)
       return data;
     } catch (error: any) {
       const message = (error as any)?.response?.data?.message ?? "An unknown error occurred";
@@ -75,9 +76,7 @@ const carSlice = createSlice({
     resetCarState: (state) => initialState,
   },
   extraReducers: (builder) => {
-    // Handling existing actions...
     builder
-      // Handling fetchCarsWithFilters actions
       .addCase(fetchCarsWithFilters.pending, (state) => {
         state.isLoading = true;
       })
@@ -87,6 +86,19 @@ const carSlice = createSlice({
         state.allCars = action.payload;
       })
       .addCase(fetchCarsWithFilters.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload as string;
+      })
+      .addCase(fetchUserCars.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchUserCars.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.userCars = action.payload;
+      })
+      .addCase(fetchUserCars.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload as string;

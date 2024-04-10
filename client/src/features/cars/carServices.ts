@@ -30,6 +30,7 @@ export const createCarListing = async (carData: CarData) => {
 export const fetchCarsByUserId = async () => {
   try {
     const response = await axios.get(`${API_URL}/mycars`, { withCredentials: true });
+    console.log(response.data)
     return response.data;
   } catch (error) {
     console.error("Error fetching user's cars:", error);

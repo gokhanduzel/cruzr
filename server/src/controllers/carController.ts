@@ -164,14 +164,24 @@ export const getCarsByUser = async (req: Request, res: Response) => {
   const userId = req.user.id;
 
   try {
-    const userCars = await Car.find({ user: userId }).populate('make', 'make -_id'); // Populate the make name
+    const userCars = await Car.find({ user: userId }).populate('make', 'make -_id');
     if (userCars.length === 0) {
       return res.status(404).json({ message: "No car listings found for this user" });
     }
-    res.json(userCars);
+    
+    // Use the transformCarDocument function to transform each car document for the response
+    const transformedCars = userCars.map(transformCarDocument);
+
+    res.json(transformedCars);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
+
+
+
 

@@ -15,7 +15,7 @@ const CreateCarListingPage = () => {
   const [formData, setFormData] = useState<Omit<CarData, "_id" | "user">>({
     make: '',
     carModel: "",
-    year: 0,
+    year: 2024,
     mileage: 0,
     price: 0,
     description: "",
