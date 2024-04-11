@@ -7,17 +7,26 @@ import CreateCarListingPage from "./pages/CreateCarListingPage";
 import MyProfilePage from "./pages/MyProfilePage";
 import HeroPage from "./pages/HeroPage";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { verifyAuth } from "./features/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchUserDetails,
+  selectIsLoggedIn,
+  verifyAuth,
+} from "./features/auth/authSlice";
 import { AppDispatch } from "./app/store";
 import Footer from "./components/Footer";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
+  const isLoggedIn = useSelector(selectIsLoggedIn);
 
   useEffect(() => {
-    dispatch(verifyAuth());
-  }, [dispatch]);
+    dispatch(verifyAuth()).then(() => {
+      if (isLoggedIn) {
+        dispatch(fetchUserDetails());
+      }
+    });
+  }, [dispatch, isLoggedIn]);
 
   return (
     <Router>

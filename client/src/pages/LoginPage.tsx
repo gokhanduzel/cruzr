@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectIsLoggedIn, setLoggedIn } from "../features/auth/authSlice";
+import { fetchUserDetails, selectIsLoggedIn, setLoggedIn } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import * as authService from "../features/auth/authService";
 import { Link } from "react-router-dom";
+import { AppDispatch } from "../app/store";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const isLoggedIn = useSelector(selectIsLoggedIn);
 
@@ -24,6 +25,7 @@ const LoginPage: React.FC = () => {
     try {
       await authService.login(email, password); 
       dispatch(setLoggedIn(true));
+      dispatch(fetchUserDetails);
       navigate("/");
     } catch (error) {
       console.error(error);
