@@ -22,9 +22,10 @@ function App() {
   return (
     <Router>
       {/* Set flex container with minimum height of full screen */}
-      <div className="flex flex-col">
+      <div className="flex flex-col min-h-screen">
         <Navbar />
         {/* Page content will change based on the route */}
+        <main className="flex-grow">
           <Routes>
             <Route path="/" element={<HeroPage />} />
             <Route path="/cars" element={<MainPage />} />
@@ -33,6 +34,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/createlisting" element={<CreateCarListingPage />} />
           </Routes>
+        </main>
         <Footer />
       </div>
     </Router>

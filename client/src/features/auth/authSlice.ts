@@ -44,7 +44,7 @@ export const verifyAuth = createAsyncThunk('auth/verifyStatus', async (_, thunkA
       const response = await authService.checkAuthStatus();
       return response.data; 
   } catch (error) {
-      console.log(thunkAPI.rejectWithValue('User not authenticated'));
+      return thunkAPI.rejectWithValue('User not authenticated');
   }
 });
 
