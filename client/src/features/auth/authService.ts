@@ -24,3 +24,4 @@ export const fetchUserById = async () => {
 export const checkAuthStatus = async () => {
   return axios.get(`${API_AUTH_URL}/status`, { withCredentials: true });
 };
+

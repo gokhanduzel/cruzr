@@ -4,6 +4,7 @@ import {
   createCarListing as createCarListingService,
   fetchCarsByUserId,
   fetchAllCars,
+  deleteCarListingById,
 } from "./carServices";
 import { CarData } from "../../types/car";
 
@@ -34,7 +35,31 @@ export const createCarListing = createAsyncThunk(
       return data;
     } catch (error: any) {
       let message = error.toString();
-      if (error.response && error.response.data && error.response.data.message) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        message = error.response.data.message;
+      }
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const deleteCarListing = createAsyncThunk(
+  "cars/deleteCarListing",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await deleteCarListingById(id);
+      return response;
+    } catch (error: any) {
+      let message = error.toString();
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
         message = error.response.data.message;
       }
       return rejectWithValue(message);
@@ -47,10 +72,11 @@ export const fetchUserCars = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const data = await fetchCarsByUserId();
-      console.log(data)
+      console.log(data);
       return data;
     } catch (error: any) {
-      const message = (error as any)?.response?.data?.message ?? "An unknown error occurred";
+      const message =
+        (error as any)?.response?.data?.message ?? "An unknown error occurred";
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -63,7 +89,8 @@ export const fetchCarsWithFilters = createAsyncThunk(
       const cars = await fetchAllCars(filters);
       return cars;
     } catch (error: any) {
-      const message = error.response?.data?.message ?? "An unknown error occurred";
+      const message =
+        error.response?.data?.message ?? "An unknown error occurred";
       return rejectWithValue(message);
     }
   }
@@ -73,7 +100,7 @@ const carSlice = createSlice({
   name: "car",
   initialState,
   reducers: {
-    resetCarState: (state) => initialState,
+    resetCarState: () => initialState,
   },
   extraReducers: (builder) => {
     builder
@@ -99,6 +126,22 @@ const carSlice = createSlice({
         state.userCars = action.payload;
       })
       .addCase(fetchUserCars.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload as string;
+      })
+      .addCase(deleteCarListing.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteCarListing.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        // Remove the deleted car from the userCars array
+        state.userCars = state.userCars.filter(
+          (car) => car._id !== action.meta.arg
+        ); // use the id passed to the deleteCarListing thunk as action.meta.arg
+      })
+      .addCase(deleteCarListing.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload as string;

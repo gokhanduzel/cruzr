@@ -26,6 +26,17 @@ export const createCarListing = async (carData: CarData) => {
   }
 };
 
+// Delete a car listing by id
+export const deleteCarListingById = async (id: string) => {
+  try {
+    const response = await axios.delete(`${API_URL}/deletecar/${id}`, { withCredentials: true });
+    return response.data; // or return a custom message or object if needed
+  } catch (error) {
+    console.error("Error deleting car listing:", error);
+    throw error; // Re-throw the error to be handled by the calling function
+  }
+};
+
 // Fetch cars by user ID with error handling
 export const fetchCarsByUserId = async () => {
   try {

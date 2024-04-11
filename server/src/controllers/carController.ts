@@ -4,6 +4,7 @@ import CarMakeModel from "../models/carMakeModel";
 import { ICar } from "../models/car";
 import mongoose from "mongoose";
 
+
 // Function to transform car document for response
 const transformCarDocument = (car: ICar): any => {
   const transformedCar = car.toObject({ virtuals: true });
@@ -94,7 +95,7 @@ export const createCarListing = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).send("Unauthorized - user not found in request");
   }
-  const userId = req.user.id; // Assuming the authenticate middleware has already added `user` to `req`
+  const userId = req.user.id;
 
   try {
     // Validate the make
@@ -103,20 +104,19 @@ export const createCarListing = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid car make." });
     }
 
-    // Optionally, validate the model (now carModel) against the models array in CarMakeModel if necessary
     if (!carMakeModelDoc.models.includes(carModel)) {
       return res.status(400).json({ message: "Invalid model for the given make." });
     }
 
     const newCar = new Car({
-      make, // This is now an ObjectId referencing a CarMakeModel document
-      carModel, // Ensure this matches the property name in your Car schema
+      make,
+      carModel,
       year,
       mileage,
       price,
       description,
       images,
-      user: userId, // Link the car to the user who is creating it
+      user: userId, // Linking the car to the user
     });
 
     const savedCar = await newCar.save();
@@ -129,7 +129,7 @@ export const createCarListing = async (req: Request, res: Response) => {
 
 // Delete a car listing
 export const deleteCarListing = async (req: Request, res: Response) => {
-  const { id } = req.params; // Assuming the car ID is passed as a URL parameter
+  const { id } = req.params;
 
   if (!req.user) {
     return res.status(401).send("Unauthorized - user not found in request");
@@ -169,7 +169,7 @@ export const getCarsByUser = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "No car listings found for this user" });
     }
     
-    // Use the transformCarDocument function to transform each car document for the response
+    // Transform each car document for the response
     const transformedCars = userCars.map(transformCarDocument);
 
     res.json(transformedCars);

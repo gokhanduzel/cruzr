@@ -6,14 +6,16 @@ import axios from "axios";
 import { CarData } from "../types/car";
 import { CarMakeModelData } from "../types/carMakeModel";
 import { createCarListing } from "../features/cars/carServices";
+import { FaTrashAlt } from "react-icons/fa";
 
 const CreateCarListingPage = () => {
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const navigate = useNavigate();
   const [carMakeModels, setCarMakeModels] = useState<CarMakeModelData[]>([]);
-  const [imageInput, setImageInput] = useState("");
+  const [imageInput, setImageInput] = useState<string[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [formData, setFormData] = useState<Omit<CarData, "_id" | "user">>({
-    make: '',
+    make: "",
     carModel: "",
     year: 2024,
     mileage: 0,
@@ -68,23 +70,24 @@ const CreateCarListingPage = () => {
         if (!error && result && result.event === "success") {
           // Update your state or form data with the image URL
           console.log("Upload Successful:", result.info.url);
-          setImageInput((prev) =>
-            prev ? `${prev},${result.info.url}` : result.info.url
-          );
+          setImageInput((prev) => [...prev, result.info.url]);
+          setImagePreviews((prev) => [...prev, result.info.url]);
         }
       }
     );
+  };
+
+  const handleRemoveImage = (imageToRemove: string) => {
+    setImagePreviews(imagePreviews.filter((image) => image !== imageToRemove));
+    setImageInput(imageInput.filter((image) => image !== imageToRemove));
   };
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    if (name === "images") {
-      setImageInput(value);
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -98,12 +101,12 @@ const CreateCarListingPage = () => {
         ...formData,
         // Use the found make's _id, fallback to an empty string if not found
         make: selectedMake ? selectedMake._id : "",
-        images: imageInput.split(",").map((url) => url.trim()),
+        images: imageInput,
       };
       console.log("Car Data Being Sent:", submissionData);
       await createCarListing(submissionData); // Use the service function for creating a car listing
       alert("Car listing created successfully!");
-      navigate("/"); // Redirect to home or listings page after successful creation
+      navigate("/cars"); 
     } catch (error) {
       console.error("Error creating car listing:", error);
       alert("Failed to create car listing. Please try again.");
@@ -111,7 +114,7 @@ const CreateCarListingPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-5">
+    <div className="min-w-full mx-auto p-5 mb-32 sm:min-w-80">
       <h2 className="text-2xl font-bold mb-5">Create Car Listing</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -223,18 +226,40 @@ const CreateCarListingPage = () => {
             name="description"
             value={formData.description}
             onChange={handleChange}
+            maxLength={50}
             placeholder="Description"
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
           />
         </div>
 
-        <button
-          type="button"
-          onClick={handleUploadWidget}
-          className="mb-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Upload Images
-        </button>
+        <div>
+          <div className="space-y-4 flex flex-row flex-wrap items-center">
+            {imagePreviews.map((image, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={image}
+                  alt={`Preview ${index + 1}`}
+                  className="w-32 h-32 object-cover rounded-md mx-4"
+                />
+                <button
+                  type="button"
+                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                  onClick={() => handleRemoveImage(image)}
+                >
+                  <FaTrashAlt />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleUploadWidget}
+            className="mb-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Upload Images
+          </button>
+        </div>
 
         <button
           type="submit"
@@ -242,6 +267,7 @@ const CreateCarListingPage = () => {
         >
           Create Listing
         </button>
+
       </form>
     </div>
   );
