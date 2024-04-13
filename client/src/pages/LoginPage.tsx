@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     // If the user is already logged in, redirect them to the homepage
     if (isLoggedIn) {
-      navigate("/");
+      navigate("/cars");
     }
   }, [isLoggedIn, navigate]);
 
@@ -26,7 +26,7 @@ const LoginPage: React.FC = () => {
       await authService.login(email, password); 
       dispatch(setLoggedIn(true));
       dispatch(fetchUserDetails);
-      navigate("/");
+      navigate("/cars");
     } catch (error) {
       console.error(error);
     }

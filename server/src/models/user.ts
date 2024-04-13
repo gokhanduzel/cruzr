@@ -13,7 +13,7 @@ const UserSchema: Schema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   refreshToken: { type: String } // Add this line
-});
+}, { timestamps: true });
 
 // Pre-save hook to hash password
 UserSchema.pre<IUser>('save', async function (next) {

@@ -28,7 +28,7 @@ const CarCard: React.FC<CarCardProps> = ({
     // Use TailwindCSS classes for a fixed height and maximum width
     <div className="p-4 flex flex-col w-80">
       <div
-        className="bg-white rounded-lg overflow-hidden shadow-lg flex flex-col"
+        className="bg-indigo-50 rounded-lg overflow-hidden shadow-lg flex flex-col"
         style={{ minHeight: "400px" }}
       >
         {carData.images && carData.images.length > 1 ? (
@@ -65,7 +65,7 @@ const CarCard: React.FC<CarCardProps> = ({
           </div>
           <div className="py-2 border-b-2">
             <p className="text-gray-700 text-base">
-              <strong>Mileage:</strong> {carData.mileage.toLocaleString()} miles
+              <strong>Mileage (km):</strong> {carData.mileage.toLocaleString()}
             </p>
           </div>
           {/* Ensure description does not push content */}
