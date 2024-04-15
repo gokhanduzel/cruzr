@@ -80,22 +80,33 @@ export const loginUser = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, { expiresIn: "15m" });
-    const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: "7d" });
+    const accessToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "15m" }
+    );
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      { expiresIn: "7d" }
+    );
 
     // Update the user document with the new refresh token
     await User.findByIdAndUpdate(user._id, { refreshToken });
 
-    res.cookie('accessToken', accessToken, {
+    res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
       maxAge: 900000,
     });
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
       maxAge: 604800000,
     });
+
+    console.log("accessToken:", accessToken);
+    console.log("refreshToken:", refreshToken);
 
     res.status(200).json({
       message: "Login successful",
@@ -114,10 +125,10 @@ export const loginUser = async (req: Request, res: Response) => {
 // User logout
 export const logoutUser = async (req: Request, res: Response) => {
   // Clear the accessToken cookie
-  res.clearCookie('accessToken');
-  
+  res.clearCookie("accessToken");
+
   // If using refresh tokens, clear that cookie as well
-  res.clearCookie('refreshToken');
+  res.clearCookie("refreshToken");
 
   res.json({ message: "Logout successful" });
 };

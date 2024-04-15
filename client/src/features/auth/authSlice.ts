@@ -8,6 +8,7 @@ import { UserDetails } from '../../types/userDetails';
 interface AuthState {
   isLoggedIn: boolean;
   userDetails: UserDetails | null;
+  accessToken: string | null;
   isLoadingUserDetails: boolean;
   errorUserDetails: string | null;
   isLoadingAuthStatus: boolean; // Add loading state for auth status
@@ -17,6 +18,7 @@ interface AuthState {
 const initialState: AuthState = {
   isLoggedIn: false,
   userDetails: null,
+  accessToken: null,
   isLoadingUserDetails: false,
   errorUserDetails: null,
   isLoadingAuthStatus: false, // Initialize loading state
@@ -48,6 +50,15 @@ export const verifyAuth = createAsyncThunk('auth/verifyStatus', async (_, thunkA
   }
 });
 
+export const fetchToken = createAsyncThunk('auth/fetchToken', async (_, thunkAPI) => {
+  try {
+    const token = await authService.fetchToken();
+    return token;
+  } catch (error) {
+    return thunkAPI.rejectWithValue('Failed to fetch token');
+  }
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -58,6 +69,9 @@ const authSlice = createSlice({
     logout(state) {
       state.isLoggedIn = false;
       state.userDetails = null; // Clear user details on logout
+    },
+    setToken(state, action: PayloadAction<string>) {
+      state.accessToken = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -89,6 +103,16 @@ const authSlice = createSlice({
         state.isLoadingAuthStatus = false;
         state.isLoggedIn = false; // Set user as not logged in if auth verification fails
         state.errorAuthStatus = action.payload as string;
+      })
+      // Handle token fetching
+      .addCase(fetchToken.pending, (state) => {
+        state.accessToken = null; // Reset token on attempt
+      })
+      .addCase(fetchToken.fulfilled, (state, action) => {
+        state.accessToken = action.payload;
+      })
+      .addCase(fetchToken.rejected, (state) => {
+        state.accessToken = null; // Clear token on error
       });
   },
 });
@@ -102,5 +126,6 @@ export const selectUserDetailsLoading = (state: RootState) => state.auth.isLoadi
 export const selectUserDetailsError = (state: RootState) => state.auth.errorUserDetails;
 export const selectIsAuthStatusLoading = (state: RootState) => state.auth.isLoadingAuthStatus; // New selector for auth status loading
 export const selectAuthStatusError = (state: RootState) => state.auth.errorAuthStatus; // New selector for auth status error
+export const selectAccessToken = (state: RootState) => state.auth.accessToken;
 
 export default authSlice.reducer;

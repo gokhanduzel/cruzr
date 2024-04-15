@@ -1,0 +1,33 @@
+// ChatModal.tsx
+
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { closeModal } from '../features/modal/modalSlice';
+import ChatComponent from './Chat';
+
+interface ChatModalProps {
+  carId: string;
+}
+
+const ChatModal: React.FC<ChatModalProps> = ({ carId }) => {
+  const dispatch = useDispatch();
+
+  const handleClose = () => {
+    dispatch(closeModal());
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black opacity-50"></div>
+      
+      <div className="relative bg-white rounded-lg shadow-xl p-6 z-10 max-w-md w-full">
+        <button onClick={handleClose} className="absolute top-2 right-2 text-lg">
+          &times;
+        </button>
+        <ChatComponent roomId={carId} />
+      </div>
+    </div>
+  );
+};
+
+export default ChatModal;

@@ -25,3 +25,8 @@ export const checkAuthStatus = async () => {
   return axios.get(`${API_AUTH_URL}/status`, { withCredentials: true });
 };
 
+export const fetchToken = async () => {
+  const response = await axios.get(`${API_AUTH_URL}/token`, { withCredentials: true });
+  return response.data.token; 
+};
+

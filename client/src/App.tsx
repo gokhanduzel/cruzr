@@ -6,34 +6,54 @@ import MainPage from "./pages/MainPage";
 import CreateCarListingPage from "./pages/CreateCarListingPage";
 import MyProfilePage from "./pages/MyProfilePage";
 import HeroPage from "./pages/HeroPage";
-import { useEffect } from "react";
+import ModalManager from "./components/ModalManager";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchUserDetails,
   selectIsLoggedIn,
   verifyAuth,
+  selectAccessToken,
+  fetchToken,
 } from "./features/auth/authSlice";
+import { initiateSocketConnection } from './features/socket/socketServices'; // Adjust import as necessary
 import { AppDispatch } from "./app/store";
 import Footer from "./components/Footer";
+import { Socket } from 'socket.io-client';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
+  const socketRef = useRef<Socket | null>(null);
   const isLoggedIn = useSelector(selectIsLoggedIn);
+  const accessToken = useSelector(selectAccessToken); // Access the accessToken from the state
 
   useEffect(() => {
     dispatch(verifyAuth()).then(() => {
       if (isLoggedIn) {
         dispatch(fetchUserDetails());
+        dispatch(fetchToken());
       }
     });
   }, [dispatch, isLoggedIn]);
 
+  useEffect(() => {
+    if (accessToken) {
+      socketRef.current = initiateSocketConnection(accessToken); // Initiate and store the socket connection
+    }
+
+    return () => {
+      // Proper cleanup when the component unmounts or accessToken changes
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [accessToken]); // This effect runs whenever there is a valid token
+
   return (
     <Router>
-      {/* Set flex container with minimum height of full screen */}
       <div className="flex flex-col min-h-screen">
         <Navbar />
-        {/* Page content will change based on the route */}
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<HeroPage />} />
@@ -43,6 +63,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/createlisting" element={<CreateCarListingPage />} />
           </Routes>
+          <ModalManager />
         </main>
         <Footer />
       </div>

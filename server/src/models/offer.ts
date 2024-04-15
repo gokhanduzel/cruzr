@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const offerSchema = new mongoose.Schema({
-  carListingId: {
+  carId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'CarListing'
+    ref: 'Car'
   },
   offererUserId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -14,7 +14,7 @@ const offerSchema = new mongoose.Schema({
   receiverUserId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'User'
+    ref: 'Car'
   },
   offerAmount: {
     type: Number,
@@ -24,17 +24,10 @@ const offerSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'accepted', 'declined'],
     default: 'pending'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
   }
-});
+}, { timestamps: true }); // Enable timestamps
 
 const Offer = mongoose.model('Offer', offerSchema);
 
-module.exports = Offer;
+
+export default Offer;

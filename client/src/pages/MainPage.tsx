@@ -3,13 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import CarCard from "../components/CarCard";
 import { CarMakeModelData } from "../types/carMakeModel";
 import { fetchCarsWithFilters, selectAllCars } from "../features/cars/carSlice";
+import { openModal } from "../features/modal/modalSlice";
 import axios from "axios";
 import { AppDispatch } from "../app/store";
 import { FaCircleChevronUp, FaCircleChevronDown } from "react-icons/fa6";
+import { selectCurrentUserDetails } from "../features/auth/authSlice";
 
 const MainPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const cars = useSelector(selectAllCars);
+  const currentUserDetails = useSelector(selectCurrentUserDetails); // Get current user details
   const [carMakeModels, setCarMakeModels] = useState<CarMakeModelData[]>([]);
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [showFilters, setShowFilters] = useState(false);
@@ -59,13 +62,15 @@ const MainPage: React.FC = () => {
     dispatch(fetchCarsWithFilters(filter));
   };
 
+  const handleChatStart = (carId: string) => {
+    dispatch(openModal({ content: "chat", carId: carId }));
+  };
+
   const modelsForSelectedMake =
     carMakeModels.find((makeModel) => makeModel.make === selectedMake)
       ?.models || [];
 
-  const toggleFilters = () => {
-    setShowFilters(!showFilters);
-  };
+  const toggleFilters = () => setShowFilters((prev) => !prev);
 
   return (
     <div className="relative">
@@ -181,7 +186,14 @@ const MainPage: React.FC = () => {
 
       <div className="flex flex-wrap justify-center gap-4 pt-32 pb-10">
         {cars.map((car) => (
-          <CarCard key={car._id?.toString()} carData={car} />
+          <CarCard
+            key={car._id?.toString()}
+            carData={car}
+            onChatStart={() => car._id && handleChatStart(car._id)}
+            isOwner={
+              currentUserDetails ? car.user === currentUserDetails._id : false
+            }
+          />
         ))}
       </div>
     </div>

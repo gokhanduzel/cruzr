@@ -26,3 +26,13 @@ export const checkAuthStatus = async (req: Request, res: Response): Promise<void
     res.status(500).json({ message: "Server error while verifying authentication status" });
   }
 };
+
+export const getToken = async (req: Request, res: Response) => {
+  const accessToken = req.cookies.accessToken; 
+
+  if (!accessToken) {
+      return res.status(401).json({ message: 'Token not found' }); 
+  }
+
+  res.status(200).json({ token: accessToken }); // Return the token value
+};
