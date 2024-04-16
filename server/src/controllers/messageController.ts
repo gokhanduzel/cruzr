@@ -76,31 +76,50 @@ export const getChatMessages = async (req: Request, res: Response) => {
   }
 };
 
-// Retrieve all messages related to a specific car listing
-export const getMessagesForCar = async (req: Request, res: Response) => {
+// Get all chat sessions for user
+export const getAllChatsByUserId = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).send("Unauthorized - user not found in request");
   }
 
-  const { carId } = req.params;
-
+  const userId = req.user.id;
   try {
-    // Find all threads related to the car and populate messages within each thread
-    const threads = await MessageThread.find({ carId })
-      .populate({
-        path: "messages",
-        populate: { path: "senderId", select: "username email" }, // Optionally populate sender details
-      })
-      .exec();
-
-    if (!threads.length) {
-      return res
-        .status(404)
-        .json({ message: "No message threads found for this car" });
-    }
-
-    res.status(200).json(threads);
+    const chatSessions = await MessageThread.find({
+      $or: [{ buyerId: userId }, { sellerId: userId }],
+    }).populate("messages");
+    res.json(chatSessions);
   } catch (error) {
-    res.status(500).json({ message: "Failed to retrieve messages", error });
+    res
+      .status(500)
+      .json({ message: "Error retrieving user's chat sessions", error });
   }
 };
+
+// Retrieve all messages related to a specific car listing
+// export const getMessagesForCar = async (req: Request, res: Response) => {
+//   if (!req.user) {
+//     return res.status(401).send("Unauthorized - user not found in request");
+//   }
+
+//   const { carId } = req.params;
+
+//   try {
+//     // Find all threads related to the car and populate messages within each thread
+//     const threads = await MessageThread.find({ carId })
+//       .populate({
+//         path: "messages",
+//         populate: { path: "senderId", select: "username email" }, // Optionally populate sender details
+//       })
+//       .exec();
+
+//     if (!threads.length) {
+//       return res
+//         .status(404)
+//         .json({ message: "No message threads found for this car" });
+//     }
+
+//     res.status(200).json(threads);
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to retrieve messages", error });
+//   }
+// };

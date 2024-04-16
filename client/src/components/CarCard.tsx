@@ -7,7 +7,7 @@ interface CarCardProps {
   isInMyProfile?: boolean; // To check whether carCard is in Main or Profile
   onDelete?: (id: string) => void;
   onChatStart?: (carId: string) => void; // Optional function to start chat
-  isOwner: boolean; // Indicates if the logged-in user is the owner of the car
+  isOwner?: boolean; // Indicates if the logged-in user is the owner of the car
 }
 
 const CarCard: React.FC<CarCardProps> = ({

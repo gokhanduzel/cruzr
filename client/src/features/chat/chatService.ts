@@ -9,3 +9,13 @@ export const fetchChatMessages = async (roomId: string) => {
   });
   return response.data;
 };
+
+export const fetchUserChats = async () => {
+  try {
+      const response = await axios.get(`${API_URL}/chats/user`, { withCredentials: true });
+      return response.data;
+  } catch (error) {
+      console.error("Error fetching chat sessions:", error);
+      throw error;
+  }
+};
