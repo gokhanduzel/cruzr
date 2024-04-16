@@ -66,6 +66,21 @@ export const getAllCars = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
+// Get user by carId
+export const getUserByCarId = async (req: Request, res: Response) => {
+  try {
+    const car = await Car.findById(req.params.carId).select("user"); // Select only the user field
+
+    if (!car) {
+      return res.status(404).json({ message: "Car not found" });
+    }
+    res.json(car.user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error retrieving user" });
+  }
+};
+
 
 // Get a single car by id
 export const getCarById = async (req: Request, res: Response) => {

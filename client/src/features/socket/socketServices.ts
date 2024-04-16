@@ -34,7 +34,7 @@ export const leaveRoom = (roomId: string) => {
 
 // Use the interface to type the function parameters
 export const sendMessage = (data: MessageData) => {
-  if (socket && data.roomId && data.message && data.senderId) {
+  if (socket && data.roomId && data.message && data.senderId && data.carId) {
     console.log("Sending message", data);
     socket.emit("sendMessage", data);
   }

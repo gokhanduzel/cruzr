@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const messageThreadSchema = new mongoose.Schema(
   {
+    roomId: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
     carId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Car",

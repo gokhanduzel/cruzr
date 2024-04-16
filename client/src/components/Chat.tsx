@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   addMessage,
   clearMessages,
+  fetchMessages,
   selectChat,
   setRoomId,
 } from "../features/chat/chatSlice";
@@ -16,17 +17,25 @@ import {
 } from "../features/socket/socketServices";
 import { selectCurrentUserDetails } from "../features/auth/authSlice";
 import { MessageData } from "../types/message";
+import { AppDispatch } from "../app/store";
 
 interface ChatComponentProps {
   roomId: string;
+  carId: string;
 }
 
-const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
+const ChatComponent: React.FC<ChatComponentProps> = ({ roomId, carId }) => {
   const { messages } = useSelector(selectChat);
   const currentUser = useSelector(selectCurrentUserDetails);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (roomId) {
+      dispatch(fetchMessages(roomId));
+    }
+  }, [roomId, dispatch]);
 
   useEffect(() => {
     dispatch(setRoomId(roomId));
@@ -55,10 +64,10 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId }) => {
     e.preventDefault();
     if (newMessage.trim() && currentUser && currentUser._id) {
       const messageData: MessageData = {
-        roomId,
+        roomId: roomId,
         message: newMessage,
         senderId: currentUser._id,
-        carId: roomId,
+        carId: carId,
       };
 
       sendSocketMessage(messageData);

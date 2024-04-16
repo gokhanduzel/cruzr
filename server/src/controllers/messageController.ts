@@ -48,12 +48,31 @@ export const sendMessage = async (req: Request, res: Response) => {
       content,
       createdAt: message.createdAt,
       messageId: message._id, // Include message ID if clients need to reference it
-      threadId: thread._id // Useful if clients handle multiple threads
+      threadId: thread._id, // Useful if clients handle multiple threads
     });
 
-    res.status(201).json({ message: "Message sent successfully", data: message });
+    res
+      .status(201)
+      .json({ message: "Message sent successfully", data: message });
   } catch (error) {
     res.status(400).json({ message: "Failed to send message", error });
+  }
+};
+
+// Get Chat Messages
+export const getChatMessages = async (req: Request, res: Response) => {
+  const { roomId } = req.params;
+  try {
+    const thread = await MessageThread.findOne({ roomId }).populate("messages");
+    if (!thread) {
+      return res
+        .status(404)
+        .json({ message: "No messages found for this room." });
+    }
+    res.json(thread.messages); // Send back the messages.
+  } catch (error) {
+    console.error("Failed to retrieve messages:", error);
+    res.status(500).json({ message: "Error retrieving messages." });
   }
 };
 

@@ -67,7 +67,7 @@ io.on("connection", (socket) => {
   console.log("Received message for room:", roomId, "Message:", message);
 
   try {
-    let thread = await MessageThread.findById(roomId);
+    let thread = await MessageThread.findOne({ roomId: roomId });
     if (!thread) {
       const car = await Car.findById(carId); // Attempt to find the car.
       if (!car) {
@@ -78,7 +78,7 @@ io.on("connection", (socket) => {
 
       console.log(`No existing thread found for room ID ${roomId}, creating a new one.`);
       thread = new MessageThread({
-        _id: roomId,
+        roomId: roomId,
         carId: carId,
         buyerId: senderId, // Sender is assumed to be the buyer when creating a new thread.
         sellerId: car.user, // The car's owner is the seller.

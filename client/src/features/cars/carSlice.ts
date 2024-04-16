@@ -5,6 +5,7 @@ import {
   fetchCarsByUserId,
   fetchAllCars,
   deleteCarListingById,
+  fetchUserByCarId as fetchUserByCarIdService
 } from "./carServices";
 import { CarData } from "../../types/car";
 
@@ -16,6 +17,7 @@ interface CarState {
   message: string | null;
   userCars: CarData[];
   allCars: CarData[]; // New state property for all cars
+  carOwner: string | null;
 }
 
 const initialState: CarState = {
@@ -25,6 +27,7 @@ const initialState: CarState = {
   message: null,
   userCars: [],
   allCars: [], // Initialize the new state property
+  carOwner: null,
 };
 
 export const createCarListing = createAsyncThunk(
@@ -96,6 +99,22 @@ export const fetchCarsWithFilters = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch the user by car ID
+export const fetchUserByCarId = createAsyncThunk(
+  "cars/fetchUserByCarId",
+  async (carId: string, { rejectWithValue }) => {
+    try {
+      const userId = await fetchUserByCarIdService(carId);
+      console.log(`THE FETCHED USER ID: ${userId}`);
+      return userId;
+    } catch (error: any) {
+      const message =
+        (error as any)?.response?.data?.message ?? "An unknown error occurred";
+      return rejectWithValue(message);
+    }
+  }
+);
+
 const carSlice = createSlice({
   name: "car",
   initialState,
@@ -145,6 +164,19 @@ const carSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload as string;
+      })
+      .addCase(fetchUserByCarId.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchUserByCarId.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.carOwner = action.payload; // Store the fetched user ID in the state
+      })
+      .addCase(fetchUserByCarId.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload as string;
       });
   },
 });
@@ -159,5 +191,8 @@ export const selectUserCars = (state: RootState) => state.car.userCars;
 
 // Selector to access all cars
 export const selectAllCars = (state: RootState) => state.car.allCars;
+
+// Selector to access car's owner id
+export const selectCarOwner = (state: RootState) => state.car.carOwner;
 
 export default carSlice.reducer;
