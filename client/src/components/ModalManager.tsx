@@ -14,24 +14,25 @@ const ModalManager = () => {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+
   useEffect(() => {
     if (isOpen && content === 'chat' && carId && currentUser?._id) {
       setLoading(true);
       dispatch(fetchUserByCarId(carId))
-        .unwrap()
-        .then(carOwnerId => {
-          if (currentUser?._id && carOwnerId) {
-            const newRoomId = generateRoomId(currentUser._id, carOwnerId, carId);
-            setRoomId(newRoomId);
-          }
-          setLoading(false);
-        })
-        .catch(error => {
-          console.error("Error fetching car owner:", error);
-          setLoading(false);
-        });
-    }
-  }, [dispatch, isOpen, content, carId, currentUser?._id]);
+      .unwrap()
+      .then(carOwnerId => {
+        if (carOwnerId) {
+          const newRoomId = generateRoomId(carOwnerId, carId);
+          setRoomId(newRoomId);
+        }
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("Error fetching car owner:", error);
+        setLoading(false);
+      });
+  }
+}, [dispatch, isOpen, content, carId]);
 
   const handleClose = () => {
     dispatch(closeModal());

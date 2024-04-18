@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CarData } from "../types/car";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../app/store";
+import {
+  fetchUserDetailsById,
+  selectUserDetailsById,
+} from "../features/auth/authSlice";
 
 interface CarCardProps {
   carData: CarData;
@@ -18,6 +24,17 @@ const CarCard: React.FC<CarCardProps> = ({
   isOwner, // Prop to check if the user is the owner of the car
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const dispatch = useDispatch<AppDispatch>();
+  const ownerDetails = useSelector((state: RootState) => carData.user ? selectUserDetailsById(state, carData.user) : null);
+  
+  console.log('CarData User:', carData.user);
+
+  useEffect(() => {
+    // Only dispatch the action if carData.user is not undefined
+    if (carData.user) {
+      dispatch(fetchUserDetailsById(carData.user));
+    }
+  }, [carData.user, dispatch]);
 
   const nextSlide = () => {
     setActiveIndex((prevIndex) => (prevIndex + 1) % carData.images.length);
@@ -69,6 +86,8 @@ const CarCard: React.FC<CarCardProps> = ({
         <div className="px-6 py-4 flex-grow">
           <div className="font-bold text-xl mb-2">
             {carData.make} {carData.carModel} ({carData.year})
+            <br />
+            Owned by: {ownerDetails ? ownerDetails.username : 'Loading...'}
           </div>
           <div className="py-2 border-b-2">
             <p className="text-gray-700 text-base">

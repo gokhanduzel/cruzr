@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
-  fetchUserDetails,
+  fetchCurrentUserDetails,
   selectCurrentUserDetails,
 } from "../features/auth/authSlice";
 import {
@@ -24,7 +24,7 @@ const MyProfilePage = () => {
   const year = userDetails && userDetails.createdAt ? new Date(userDetails.createdAt).getFullYear() : "N/A";
 
   useEffect(() => {
-    dispatch(fetchUserDetails());
+    dispatch(fetchCurrentUserDetails());
     dispatch(fetchUserCars());
     dispatch(fetchUserChatSessions()); // Fetch chat sessions
   }, [dispatch]);

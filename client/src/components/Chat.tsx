@@ -18,6 +18,7 @@ import {
 import { selectCurrentUserDetails } from "../features/auth/authSlice";
 import { MessageData } from "../types/message";
 import { AppDispatch } from "../app/store";
+import { fetchUserByCarId, selectCarOwner } from "../features/cars/carSlice";
 
 interface ChatComponentProps {
   roomId: string;
@@ -27,6 +28,7 @@ interface ChatComponentProps {
 const ChatComponent: React.FC<ChatComponentProps> = ({ roomId, carId }) => {
   const { messages } = useSelector(selectChat);
   const currentUser = useSelector(selectCurrentUserDetails);
+  const ownerId = useSelector(selectCarOwner);
   const dispatch = useDispatch<AppDispatch>();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
@@ -60,6 +62,10 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId, carId }) => {
     }
   }, [messages]);
 
+  useEffect(() => {
+    dispatch(fetchUserByCarId(carId)); // Fetch the car owner's ID
+  }, [carId, dispatch]);
+
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newMessage.trim() && currentUser && currentUser._id) {
@@ -81,10 +87,12 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId, carId }) => {
         {messages.map((msg, index) => (
           <li
             key={index}
-            className={`p-2 my-1 text-sm rounded-lg ${
-              msg.senderId === currentUser?._id
-                ? "bg-blue-500 text-white self-end"
-                : "bg-gray-200 self-start"
+            className={`p-2 my-1 text-sm rounded-lg max-w-[80%] ${
+              msg.senderId === ownerId
+                ? "bg-indigo-500 text-white ml-auto" // Owner messages on the right
+                : msg.senderId === currentUser?._id
+                ? "bg-indigo-300 text-black self-end" // Current user's messages on the right
+                : "bg-gray-200 self-start" // Other users' messages on the left
             }`}
           >
             {msg.content}
@@ -101,11 +109,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId, carId }) => {
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none"
+          className="bg-indigo-500 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700 transition duration-300 focus:outline-none"
         >
           Send
         </button>

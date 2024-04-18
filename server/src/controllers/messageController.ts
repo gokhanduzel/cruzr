@@ -2,6 +2,7 @@ import Message from "../models/message";
 import MessageThread from "../models/messageThread";
 import Car from "../models/car";
 import { Request, Response } from "express";
+import { generateRoomId } from "../utils/generateRoomId";
 
 // Send a message
 export const sendMessage = async (req: Request, res: Response) => {
@@ -87,11 +88,53 @@ export const getAllChatsByUserId = async (req: Request, res: Response) => {
     const chatSessions = await MessageThread.find({
       $or: [{ buyerId: userId }, { sellerId: userId }],
     }).populate("messages");
+    console.log('CHAT SESSIONSSSS:', chatSessions)
     res.json(chatSessions);
   } catch (error) {
     res
       .status(500)
       .json({ message: "Error retrieving user's chat sessions", error });
+  }
+};
+
+export const getOrCreateChatRoom = async (req: Request, res: Response) => {
+  const { carId, userId } = req.params;
+
+  try {
+    const car = await Car.findById(carId).populate('user').lean(); 
+    if (!car) {
+      return res.status(404).send('Car not found');
+    }
+
+    // Determine roles based on who is the owner
+    const carOwnerId = car.user.toString(); 
+    const isCurrentUserSeller = carOwnerId === userId;
+    const buyerId = isCurrentUserSeller ? undefined : userId;
+    const sellerId = isCurrentUserSeller ? userId : carOwnerId;
+
+    let chatSession = await MessageThread.findOne({
+      carId,
+      $or: [
+        { buyerId: buyerId, sellerId: sellerId },
+        { buyerId: sellerId, sellerId: buyerId } // In case roles got reversed in records
+      ]
+    });
+
+    // If no session exists, create a new one
+    if (!chatSession) {
+      chatSession = new MessageThread({
+        roomId: generateRoomId(carId, buyerId, sellerId),
+        carId,
+        buyerId,
+        sellerId
+      });
+      await chatSession.save();
+    }
+
+    res.json({ roomId: chatSession.roomId });
+  } catch (error) {
+    console.error("Error in fetching/creating chat room:", error);
+    res.status(500).send('Error fetching or creating chat room');
   }
 };
 

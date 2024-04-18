@@ -17,7 +17,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 // Get user by id
-export const getUserById = async (req: Request, res: Response) => {
+export const getCurrentUserById = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).send("Unauthorized - user not found in request");
   }
@@ -35,6 +35,21 @@ export const getUserById = async (req: Request, res: Response) => {
     }
 
     res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getUserById = async (req: Request, res: Response) => {
+  const userId = req.params.userId;
+
+  try {
+    const user = await User.findById(userId, "username");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ username: user.username });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

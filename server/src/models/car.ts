@@ -1,10 +1,10 @@
 // Car.ts
 import mongoose, { Schema, Document } from "mongoose";
-import CarMakeModel from "./carMakeModel"; // Ensure correct import path
+import CarMakeModel from "./carMakeModel"; 
 
 export interface ICar extends Document {
-  make: Schema.Types.ObjectId; // Reference to CarMakeModel
-  carModel: string; // Use 'carModel' to avoid naming conflicts
+  make: Schema.Types.ObjectId; 
+  carModel: string; 
   year: number;
   mileage: number;
   price: number;

@@ -235,7 +235,7 @@ const CreateCarListingPage = () => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              maxLength={50}
+              maxLength={500}
               placeholder="Description"
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
             />

@@ -10,7 +10,7 @@ import ModalManager from "./components/ModalManager";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchUserDetails,
+  fetchCurrentUserDetails,
   selectIsLoggedIn,
   verifyAuth,
   selectAccessToken,
@@ -30,7 +30,7 @@ function App() {
   useEffect(() => {
     dispatch(verifyAuth()).then(() => {
       if (isLoggedIn) {
-        dispatch(fetchUserDetails());
+        dispatch(fetchCurrentUserDetails());
         dispatch(fetchToken());
       }
     });

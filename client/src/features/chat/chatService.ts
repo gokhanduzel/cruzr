@@ -19,3 +19,10 @@ export const fetchUserChats = async () => {
       throw error;
   }
 };
+
+export const fetchChatRoom = async (carId: string, userId: string) => {
+  const response = await axios.get(`${API_URL}/getOrCreateRoom/${carId}/${userId}`, {
+    withCredentials: true,
+  });
+  return response.data;
+};

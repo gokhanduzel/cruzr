@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    // Fixed at the bottom, full width, z-index to be on top of other content
     <footer className="fixed inset-x-0 bottom-0 bg-white rounded-lg shadow px-4 py-2 dark:bg-gray-800 z-50">
       <div className="w-full mx-auto max-w-screen-xl md:flex md:items-center md:justify-between">
         <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">
