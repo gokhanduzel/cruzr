@@ -1,26 +1,26 @@
 // Car.ts
 import mongoose, { Schema, Document } from "mongoose";
-import CarMakeModel from "./carMakeModel"; 
+import CarMakeModel from "./carMakeModel";
 
 export interface ICar extends Document {
-  make: Schema.Types.ObjectId; 
-  carModel: string; 
+  make: string;
+  carModel: string;
   year: number;
   mileage: number;
   price: number;
   description?: string;
   images: string[];
-  user: Schema.Types.ObjectId; // Reference to User model
+  user: Schema.Types.ObjectId;
 }
 
 const carSchema: Schema = new Schema(
   {
-    make: { type: Schema.Types.ObjectId, ref: "CarMakeModel", required: true },
-    carModel: { type: String, required: true }, // Reflect updated interface property
+    make: { type: String, ref: "CarMakeModel", required: true },
+    carModel: { type: String, required: true, text: true },
     year: { type: Number, required: true },
     mileage: { type: Number, required: true, min: 0 },
     price: { type: Number, required: true, min: 0 },
-    description: { type: String },
+    description: { type: String, text: true },
     images: [{ type: String }],
     user: {
       type: Schema.Types.ObjectId,
@@ -31,8 +31,7 @@ const carSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-// Optional: Index for better search performance
-carSchema.index({ make: 1, carModel: 1, year: -1 });
+carSchema.index({ carModel: 'text', description: 'text' });
 
 const Car = mongoose.model<ICar>("Car", carSchema);
 

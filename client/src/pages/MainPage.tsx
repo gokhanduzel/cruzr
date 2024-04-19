@@ -184,17 +184,27 @@ const MainPage: React.FC = () => {
         </button>
       </div>
 
+      {/* Car listing display area */}
       <div className="flex flex-wrap justify-center gap-4 pt-32 pb-10">
-        {cars.map((car) => (
-          <CarCard
-            key={car._id?.toString()}
-            carData={car}
-            onChatStart={() => car._id && handleChatStart(car._id)}
-            isOwner={
-              currentUserDetails ? car.user === currentUserDetails._id : false
-            }
-          />
-        ))}
+        {cars.length > 0 ? (
+          cars.map((car) => (
+            <CarCard
+              key={car._id?.toString()}
+              carData={car}
+              onChatStart={() => car._id && handleChatStart(car._id)}
+              isOwner={
+                currentUserDetails ? car.user === currentUserDetails._id : false
+              }
+            />
+          ))
+        ) : (
+          <div className="w-full text-center text-gray-600 text-xl">
+            <p>
+              No car listings found. Try adjusting your filters or check back
+              later.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

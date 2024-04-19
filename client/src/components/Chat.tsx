@@ -15,10 +15,16 @@ import {
   subscribeToMessages,
   unsubscribeFromMessages, // Make sure you have this function implemented
 } from "../features/socket/socketServices";
-import { selectCurrentUserDetails } from "../features/auth/authSlice";
+import {
+  fetchUserDetailsById,
+  selectCurrentUserDetails,
+  selectUserDetailsById,
+} from "../features/auth/authSlice";
 import { MessageData } from "../types/message";
-import { AppDispatch } from "../app/store";
+import { AppDispatch, RootState } from "../app/store";
 import { fetchUserByCarId, selectCarOwner } from "../features/cars/carSlice";
+import { FaCar } from "react-icons/fa";
+
 
 interface ChatComponentProps {
   roomId: string;
@@ -26,12 +32,26 @@ interface ChatComponentProps {
 }
 
 const ChatComponent: React.FC<ChatComponentProps> = ({ roomId, carId }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const { messages } = useSelector(selectChat);
   const currentUser = useSelector(selectCurrentUserDetails);
   const ownerId = useSelector(selectCarOwner);
-  const dispatch = useDispatch<AppDispatch>();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const usernames = useSelector((state: RootState) =>
+    messages.reduce((acc, msg) => {
+      acc[msg.senderId] =
+        selectUserDetailsById(state, msg.senderId)?.username || "Loading...";
+      return acc;
+    }, {} as { [key: string]: string })
+  );
+
+  useEffect(() => {
+    const userIds = new Set(messages.map((msg) => msg.senderId));
+    userIds.forEach((userId) => {
+      dispatch(fetchUserDetailsById(userId));
+    });
+  }, [dispatch, messages]);
 
   useEffect(() => {
     if (roomId) {
@@ -81,6 +101,14 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId, carId }) => {
     }
   };
 
+  const formatDate = (dateString: string | number | Date) => {
+    const date = new Date(dateString);
+    return `${date.getHours()}:${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")} - ${date.toDateString()}`;
+  };
+
   return (
     <div className="flex flex-col h-full max-w-md mx-auto bg-white rounded-lg shadow">
       <ul className="flex-grow overflow-auto p-4">
@@ -89,13 +117,19 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId, carId }) => {
             key={index}
             className={`p-2 my-1 text-sm rounded-lg max-w-[80%] ${
               msg.senderId === ownerId
-                ? "bg-indigo-500 text-white ml-auto" // Owner messages on the right
+                ? "bg-orange-500 text-black mr-auto" // Owner messages on the right
                 : msg.senderId === currentUser?._id
-                ? "bg-indigo-300 text-black self-end" // Current user's messages on the right
-                : "bg-gray-200 self-start" // Other users' messages on the left
+                ? "bg-indigo-500 text-white ml-auto" // Current user's messages on the right
+                : "bg-gray-200 mr-auto" // Other users' messages on the left
             }`}
           >
-            {msg.content}
+            <div className="flex flex-row items-center">
+            {msg.senderId === ownerId ? <FaCar className="mr-1"/> : null}
+            <strong>{usernames[msg.senderId]}:</strong> {msg.content}
+            </div>
+            <div className="text-xs text-black-500 text-right mt-1">
+              {formatDate(msg.createdAt)}
+            </div>
           </li>
         ))}
         <div ref={messagesEndRef} />

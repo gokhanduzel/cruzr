@@ -9,13 +9,12 @@ import carRoutes from "./routes/carRoutes";
 import userRoutes from "./routes/userRoutes";
 import carMakeModelRoutes from "./routes/carMakeModelRoutes";
 import authenticateRoutes from "./routes/authenticateRoutes";
-import offerRoutes from "./routes/offerRoutes";
 import messageRoutes from "./routes/messageRoutes";
 import Message from "./models/message";
 import MessageThread from "./models/messageThread";
 import Car from "./models/car";
 
-dotenv.config(); // Load environment variables from .env file
+dotenv.config(); //environment variables from .env file
 
 class AppError extends Error {
   constructor(message: string, public statusCode: number = 500) {
@@ -51,10 +50,8 @@ const io = new SocketIOServer(httpServer, {
   },
 });
 
-// Attach io to the app to make it accessible in controllers
 app.set("io", io);
 
-// Inside your existing 'connection' event setup in index.ts
 io.on("connection", (socket) => {
   console.log("a user connected");
 
@@ -80,17 +77,24 @@ io.on("connection", (socket) => {
       thread = new MessageThread({
         roomId: roomId,
         carId: carId,
-        buyerId: senderId, // Sender is assumed to be the buyer when creating a new thread.
+        buyerIds: [senderId], // Sender is assumed to be the buyer when creating a new thread.
         sellerId: car.user, // The car's owner is the seller.
         messages: [],
       });
       await thread.save();
+    } else {
+      // Check if sender is already a buyer or the seller
+      if (!thread.buyerIds.includes(senderId) && thread.sellerId.toString() !== senderId) {
+        thread.buyerIds.push(senderId); // Add new buyer if not already included
+        await thread.save();
+        console.log(`Added new buyer ${senderId} to room ${roomId}`);
+      }
     }
 
     const newMessage = new Message({
       content: message,
       threadId: thread._id,
-      senderId: senderId, // Sender could be either the buyer or the seller, depending on who is responding.
+      senderId: senderId,
     });
     await newMessage.save();
     thread.messages.push(newMessage._id);
@@ -126,7 +130,6 @@ io.on("connection", (socket) => {
 app.use("/api/cars", carRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/makemodel", carMakeModelRoutes);
-app.use("/api/offers", offerRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/auth", authenticateRoutes);
 

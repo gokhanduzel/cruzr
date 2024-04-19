@@ -8,13 +8,14 @@ interface Message {
   senderId: string; // Assuming you handle the conversion of ObjectId to string in the API layer
   content: string;
   threadId: string;
+  createdAt: Date;
 }
 
 // Represents a simplified view of a chat session.
 interface ChatSession {
   roomId: string;
   carId: string;
-  buyerId: string;
+  buyerIds: string[];
   sellerId: string;
   messages: Message[];
 }
@@ -36,13 +37,13 @@ export const fetchMessages = createAsyncThunk(
   "chat/fetchMessages",
   async (roomId: string, { rejectWithValue }) => {
     try {
-      // This needs to align with how messages are retrieved and structured from your API
       const messages = await fetchChatMessages(roomId);
       return messages.map(
-        (msg: { senderId: any; content: any; threadId: any }) => ({
+        (msg: { senderId: string; content: string; threadId: string, createdAt: Date }) => ({
           senderId: msg.senderId,
           content: msg.content,
-          threadId: msg.threadId, // Assuming the API sends this; adjust as needed
+          threadId: msg.threadId,
+          createdAt: msg.createdAt
         })
       );
     } catch (error: any) {
@@ -56,19 +57,13 @@ export const fetchUserChatSessions = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const chatSessions = await fetchUserChats();
-      return chatSessions;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
-);
-
-export const fetchOrGetRoomId = createAsyncThunk(
-  "chat/fetchOrGetRoomId",
-  async (_, { rejectWithValue }) => {
-    try {
-      const chatSessions = await fetchUserChats();
-      return chatSessions;
+      return chatSessions.map((session: any) => ({
+        roomId: session.roomId,
+        carId: session.carId,
+        buyerIds: session.buyerIds,
+        sellerId: session.sellerId,
+        messages: session.messages,
+      }));
     } catch (error: any) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -95,7 +90,9 @@ const chatSlice = createSlice({
     builder
       .addCase(fetchMessages.fulfilled, (state, action) => {
         // Concatenate the new messages to the existing ones without duplicates
-        const fetchedMessageIds = action.payload.map((m: { _id: string; }) => m._id);
+        const fetchedMessageIds = action.payload.map(
+          (m: { _id: string }) => m._id
+        );
         state.messages = [
           ...state.messages.filter((m) => !fetchedMessageIds.includes(m._id)),
           ...action.payload,

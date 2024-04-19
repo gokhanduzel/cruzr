@@ -5,6 +5,7 @@ import authenticate from "../middlewares/authenticate";
 
 const router = express.Router();
 
+// Routes
 router.get('/status', authenticate, checkAuthStatus);
 router.get('/token', authenticate, getToken); 
 

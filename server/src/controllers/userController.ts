@@ -11,19 +11,17 @@ export const getAllUsers = async (req: Request, res: Response) => {
     const users = await User.find();
     res.json(users);
   } catch (err) {
-    console.error((err as Error).message); // Cast err as an Error object
+    console.error((err as Error).message);
     res.status(500).send("Server Error");
   }
 };
 
-// Get user by id
 export const getCurrentUserById = async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).send("Unauthorized - user not found in request");
   }
 
   const userId = req.user.id;
-  // Check if the ID is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).json({ message: "Invalid ID format" });
   }
@@ -61,7 +59,6 @@ export const registerUser = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
 
   try {
-    // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
@@ -98,7 +95,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET as string,
-      { expiresIn: "15m" }
+      { expiresIn: "60m" }
     );
     const refreshToken = jwt.sign(
       { id: user._id },

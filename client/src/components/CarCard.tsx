@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from "../app/store";
 import {
   fetchUserDetailsById,
   selectUserDetailsById,
+  selectIsLoggedIn
 } from "../features/auth/authSlice";
 
 interface CarCardProps {
@@ -26,7 +27,8 @@ const CarCard: React.FC<CarCardProps> = ({
   const [activeIndex, setActiveIndex] = useState(0);
   const dispatch = useDispatch<AppDispatch>();
   const ownerDetails = useSelector((state: RootState) => carData.user ? selectUserDetailsById(state, carData.user) : null);
-  
+  const isLoggedIn = useSelector((state: RootState) => selectIsLoggedIn(state));
+
   console.log('CarData User:', carData.user);
 
   useEffect(() => {
@@ -45,6 +47,14 @@ const CarCard: React.FC<CarCardProps> = ({
       (prevIndex) =>
         (prevIndex - 1 + carData.images.length) % carData.images.length
     );
+  };
+
+  const handleChat = () => {
+    if (isLoggedIn) {
+      carData._id && onChatStart && onChatStart(carData._id);
+    } else {
+      alert("You must be logged in to start/join a chat.");
+    }
   };
 
   return (
@@ -113,14 +123,12 @@ const CarCard: React.FC<CarCardProps> = ({
             Your Listing
           </div>
         ) : (
-          onChatStart && (
-            <button
-              onClick={() => carData._id && onChatStart(carData._id)}
-              className="p-2 text-white bg-indigo-500 hover:bg-indigo-700 transition duration-300 rounded-b-lg text-sm"
-            >
-              Chat
-            </button>
-          )
+          <button
+            onClick={handleChat}
+            className="p-2 text-white bg-indigo-500 hover:bg-indigo-700 transition duration-300 rounded-b-lg text-sm"
+          >
+            Chat
+          </button>
         )}
         {isInMyProfile && onDelete && (
           <button

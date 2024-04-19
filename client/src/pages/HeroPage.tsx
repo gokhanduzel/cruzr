@@ -14,7 +14,7 @@ const HeroPage = () => {
   }, []);
 
   return (
-    <div className=" bg-indigo-800 text-white h-screen flex flex-col justify-center items-center text-center px-4 md:px-0">
+    <div className=" bg-gradient-radial from-indigo-500 to-indigo-900 text-white h-screen flex flex-col justify-center items-center text-center px-4 md:px-0">
       <img src={Civic} alt="red_civic_image" className="w-96"/>
       <h1 className="text-5xl font-bold md:text-6xl lg:text-7xl mb-6">
         Find Your Dream Car
@@ -25,7 +25,7 @@ const HeroPage = () => {
       </p>
       <Link
         to="/cars"
-        className="py-3 px-8 mb-32 bg-indigo-500 hover:bg-orange-400 transition duration-300 ease-in-out rounded-lg text-xl font-semibold shadow-lg"
+        className="py-3 px-8 mb-32 bg-indigo-800 hover:bg-orange-400 transition duration-300 ease-in-out rounded-lg text-xl font-semibold shadow-lg"
       >
         Browse Listings
       </Link>

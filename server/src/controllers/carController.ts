@@ -4,12 +4,11 @@ import CarMakeModel from "../models/carMakeModel";
 import { ICar } from "../models/car";
 import mongoose from "mongoose";
 
-
 // Function to transform car document for response
 const transformCarDocument = (car: ICar): any => {
   const transformedCar = car.toObject({ virtuals: true });
 
-  if (transformedCar.make && typeof transformedCar.make === 'object') {
+  if (transformedCar.make && typeof transformedCar.make === "object") {
     // Safely transform the make object to string if populated
     transformedCar.make = transformedCar.make.make;
   }
@@ -17,21 +16,30 @@ const transformCarDocument = (car: ICar): any => {
   return transformedCar;
 };
 
-export const getAllCars = async (req: Request, res: Response): Promise<void> => {
+export const getAllCars = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
-    // Extract query parameters
-    let { make, model, yearMin, yearMax, mileageMin, mileageMax, priceMin, priceMax } = req.query;
+    let {
+      make,
+      model,
+      yearMin,
+      yearMax,
+      mileageMin,
+      mileageMax,
+      priceMin,
+      priceMax,
+    } = req.query;
 
     let query: any = {};
 
-    // Ensure `make` is treated as a string for the query
-    if (typeof make === 'string' || make instanceof String) {
-      // Find the ObjectId(s) for the make(s)
+    if (typeof make === "string" || make instanceof String) {
       const makeObjects = await CarMakeModel.find({
-        "make": { $regex: make as string, $options: "i" }
+        make: { $regex: make as string, $options: "i" },
       });
       if (makeObjects.length > 0) {
-        query.make = { $in: makeObjects.map(obj => obj._id) };
+        query.make = { $in: makeObjects.map((obj) => obj._id) };
       }
     }
 
@@ -57,7 +65,7 @@ export const getAllCars = async (req: Request, res: Response): Promise<void> => 
       if (priceMax) query.price.$lte = parseInt(priceMax as string);
     }
 
-    const cars = await Car.find(query).populate('make', 'make -_id');
+    const cars = await Car.find(query).populate("make", "make -_id");
     const transformedCars = cars.map(transformCarDocument);
     res.json(transformedCars);
   } catch (err) {
@@ -81,7 +89,6 @@ export const getUserByCarId = async (req: Request, res: Response) => {
   }
 };
 
-
 // Get a single car by id
 export const getCarById = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -91,7 +98,7 @@ export const getCarById = async (req: Request, res: Response) => {
   }
 
   try {
-    const car = await Car.findById(id).populate('make', 'make -_id'); // Populate the make name
+    const car = await Car.findById(id).populate("make", "make -_id"); // Populate the make name
     if (!car) {
       return res.status(404).json({ message: "Car not found" });
     }
@@ -105,7 +112,8 @@ export const getCarById = async (req: Request, res: Response) => {
 
 // Create a car listing
 export const createCarListing = async (req: Request, res: Response) => {
-  const { make, carModel, year, mileage, price, description, images } = req.body;
+  const { make, carModel, year, mileage, price, description, images } =
+    req.body;
 
   if (!req.user) {
     return res.status(401).send("Unauthorized - user not found in request");
@@ -120,7 +128,9 @@ export const createCarListing = async (req: Request, res: Response) => {
     }
 
     if (!carMakeModelDoc.models.includes(carModel)) {
-      return res.status(400).json({ message: "Invalid model for the given make." });
+      return res
+        .status(400)
+        .json({ message: "Invalid model for the given make." });
     }
 
     const newCar = new Car({
@@ -179,11 +189,16 @@ export const getCarsByUser = async (req: Request, res: Response) => {
   const userId = req.user.id;
 
   try {
-    const userCars = await Car.find({ user: userId }).populate('make', 'make -_id');
+    const userCars = await Car.find({ user: userId }).populate(
+      "make",
+      "make -_id"
+    );
     if (userCars.length === 0) {
-      return res.status(404).json({ message: "No car listings found for this user" });
+      return res
+        .status(404)
+        .json({ message: "No car listings found for this user" });
     }
-    
+
     // Transform each car document for the response
     const transformedCars = userCars.map(transformCarDocument);
 
@@ -194,9 +209,27 @@ export const getCarsByUser = async (req: Request, res: Response) => {
   }
 };
 
+export const searchCars = async (req: Request, res: Response) => {
+  const { keywords } = req.query;
 
+  // Check if keywords is a string and not empty
+  if (typeof keywords !== "string" || !keywords.trim()) {
+    return res
+      .status(400)
+      .json({ message: "No search keywords provided or invalid format" });
+  }
 
+  try {
+    // Create a text search query using the provided keywords
+    const searchQuery = { $text: { $search: keywords } };
+    const cars = await Car.find(searchQuery).populate({
+      path: "make", // Assuming you want to pull in some details from the CarMakeModel, which is referenced in the make field
+      select: "make", // Only selecting the 'make' field from the CarMakeModel document
+    });
 
-
-
-
+    res.json(cars);
+  } catch (error) {
+    console.error("Error during car search:", error);
+    res.status(500).json({ message: "Error retrieving search results", error });
+  }
+};

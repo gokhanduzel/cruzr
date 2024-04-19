@@ -9,6 +9,7 @@ import { AppDispatch } from "../app/store";
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -28,6 +29,7 @@ const LoginPage: React.FC = () => {
       dispatch(fetchCurrentUserDetails);
       navigate("/cars");
     } catch (error) {
+      setError("Failed to log in. Please check your credentials and try again.");
       console.error(error);
     }
   };
@@ -39,6 +41,7 @@ const LoginPage: React.FC = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-100">
             Sign in to your account
           </h2>
+          {error && <p className="text-red-500 text-center mt-2">{error}</p>} {/* Display error message */}
         </div>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <input type="hidden" name="remember" value="true" />
