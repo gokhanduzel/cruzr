@@ -35,7 +35,7 @@ const MainPage: React.FC = () => {
     const fetchCarMakeModels = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/makemodel/carmakemodel"
+          `${import.meta.env.VITE_API_URL}/api/makemodel/carmakemodel`
         );
         setCarMakeModels(response.data);
       } catch (error) {

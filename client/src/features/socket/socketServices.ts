@@ -4,7 +4,7 @@ import { MessageData } from "../../types/message";
 let socket: Socket; // Use Socket type from socket.io-client
 
 export const initiateSocketConnection = (token: string) => {
-  socket = io("http://localhost:3000", {
+  socket = io(`${import.meta.env.VITE_API_URL}`, {
     query: { token },
     transports: ["websocket"],
   });

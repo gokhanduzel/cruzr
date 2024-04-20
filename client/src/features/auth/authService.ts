@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 
-const API_USER_URL = "http://localhost:3000/api/users";
-const API_AUTH_URL = "http://localhost:3000/api/auth/";
+const API_USER_URL = `${import.meta.env.VITE_API_URL}/api/users`;
+const API_AUTH_URL = `${import.meta.env.VITE_API_URL}/api/auth/`;
 
 interface ApiErrorResponse {
   message: string; // Assuming your server error responses include a message field

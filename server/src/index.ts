@@ -13,6 +13,7 @@ import messageRoutes from "./routes/messageRoutes";
 import Message from "./models/message";
 import MessageThread from "./models/messageThread";
 import Car from "./models/car";
+import path = require("path");
 
 dotenv.config(); //environment variables from .env file
 
@@ -33,7 +34,7 @@ connectDB();
 app.use(express.json());
 app.use(cookieParser());
 
-const frontendOrigin = "http://localhost:5173";
+const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 app.use(
   cors({
     origin: frontendOrigin,
@@ -141,6 +142,11 @@ app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
       ? "An error occurred, please try again later."
       : err.message;
   res.status(err.statusCode).send(responseMessage);
+});
+
+app.use(express.static(path.resolve(__dirname, "./client/build")));
+app.get("*", function (request, response) {
+  response.sendFile(path.resolve(__dirname, "./client/build", "index.html"));
 });
 
 // Start Server

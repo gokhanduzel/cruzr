@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/messages";
+const API_URL = `${import.meta.env.VITE_API_URL}/api/messages`;
 
 // Function to fetch messages for a chat room
 export const fetchChatMessages = async (roomId: string) => {

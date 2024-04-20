@@ -5,14 +5,14 @@ interface IUser extends Document {
   username: string;
   email: string;
   password: string;
-  refreshToken?: string; // Optional field for refresh token
+  refreshToken?: string;
 }
 
 const UserSchema: Schema = new Schema({
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  refreshToken: { type: String } // Add this line
+  refreshToken: { type: String }
 }, { timestamps: true });
 
 // Pre-save hook to hash password

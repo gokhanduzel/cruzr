@@ -1,7 +1,7 @@
 import axios from "axios";
 import { CarData } from "../../types/car";
 
-const API_URL = "http://localhost:3000/api/cars";
+const API_URL = `${import.meta.env.VITE_API_URL}/api/cars`;
 
 // Fetch all cars with optional filters
 export const fetchAllCars = async (filters = {}) => {
