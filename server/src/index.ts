@@ -26,7 +26,6 @@ class AppError extends Error {
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
-const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
 // Connect to database
 connectDB();
@@ -59,6 +58,11 @@ const corsOptions: CorsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.path} from ${req.ip}`);
+  next();
+});
 
 const io = new SocketIOServer(httpServer, {
   cors: {
@@ -159,6 +163,7 @@ app.use("/api/auth", authenticateRoutes);
 
 // Error Handling
 app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
+  console.error("Error during request:", err.message);
   console.error(err.stack);
   const responseMessage =
     process.env.NODE_ENV === "production"
