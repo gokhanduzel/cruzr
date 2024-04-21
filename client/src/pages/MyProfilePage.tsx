@@ -64,6 +64,21 @@ const MyProfilePage = () => {
         </div>
 
         <div className="mb-10">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">My Chats</h2>
+          <div>
+            {chatSessions.length > 0 ? (
+              chatSessions.map((session) => (
+                <ChatCard key={session.roomId} chatSession={session} />
+              ))
+            ) : (
+              <div className="p-5 bg-gray-100 rounded-md text-center">
+                <p>No active chats.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mb-20">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             My Car Listings
           </h2>
@@ -80,21 +95,6 @@ const MyProfilePage = () => {
             ) : (
               <div className="p-5 bg-gray-100 rounded-md text-center">
                 <p>You have no car listings yet.</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">My Chats</h2>
-          <div>
-            {chatSessions.length > 0 ? (
-              chatSessions.map((session) => (
-                <ChatCard key={session.roomId} chatSession={session} />
-              ))
-            ) : (
-              <div className="p-5 bg-gray-100 rounded-md text-center">
-                <p>No active chats.</p>
               </div>
             )}
           </div>

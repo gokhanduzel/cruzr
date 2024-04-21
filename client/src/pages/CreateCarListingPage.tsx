@@ -114,10 +114,10 @@ const CreateCarListingPage = () => {
   };
 
   return (
-    <div className="flex-grow flex items-center justify-center pt-24 bg-gradient-to-b from-indigo-500 ...">
+    <div className="flex-grow flex items-center justify-center pt-24 bg-gradient-to-b from-indigo-500 ... mb-40">
       <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
         <div className="border-b-2 mb-4">
-          <h2 className="text-2xl font-bold mb-5 text-indigo-200">
+          <h2 className="text-2xl font-bold mb-5 text-white">
             Create Car Listing
           </h2>
         </div>

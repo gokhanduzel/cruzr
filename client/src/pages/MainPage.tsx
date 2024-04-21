@@ -185,7 +185,7 @@ const MainPage: React.FC = () => {
       </div>
 
       {/* Car listing display area */}
-      <div className="flex flex-wrap justify-center gap-4 pt-32 pb-10">
+      <div className="flex flex-wrap justify-center gap-4 pt-32 pb-10 mb-10">
         {cars.length > 0 ? (
           cars.map((car) => (
             <CarCard

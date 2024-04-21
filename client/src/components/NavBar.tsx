@@ -69,9 +69,9 @@ const Navbar = () => {
         </div>
         {nav && (
           <div className="absolute left-0 w-full bg-black bg-opacity-95 mt-4 md:hidden">
-            <ul className="uppercase text-center py-8">
+            <ul className="text-center py-8">
               <li className="py-4 mx-32 border-b-2 border-indigo-500/50">
-                <Link to="/" className="text-white hover:text-indigo-500 transition duration-300" onClick={() => setNav(false)}>Cars</Link>
+                <Link to="/cars" className="text-white hover:text-indigo-500 transition duration-300" onClick={() => setNav(false)}>Cars</Link>
               </li>
               {!isLoggedIn ? (
                 <>
@@ -85,7 +85,10 @@ const Navbar = () => {
               ) : (
                 <>
                   <li className="py-4 mx-32 border-b-2 border-indigo-500/50">
-                    <Link to="/myprofile" className="text-white hover:text-indigo-500 transition duration-300" onClick={() => setNav(false)}>My Profile</Link>
+                    <Link to="/myprofile" className="text-white hover:text-indigo-500 transition duration-300" onClick={() => setNav(false)}>My Profile ({userDetails?.username})</Link>
+                  </li>
+                  <li className="py-4 mx-32 border-b-2 border-indigo-500/50">
+                    <Link to="/createlisting" className="text-white hover:text-indigo-500 transition duration-300" onClick={() => setNav(false)}>Create Listing</Link>
                   </li>
                   <li className="py-4">
                     <button onClick={handleLogoutClick} className="text-white hover:text-indigo-500 transition duration-300">Logout</button>
