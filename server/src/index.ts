@@ -26,6 +26,7 @@ class AppError extends Error {
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
+const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
 // Connect to database
 connectDB();
@@ -33,16 +34,6 @@ connectDB();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-
-const frontendOrigin = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
-app.use(
-  cors({
-    origin: frontendOrigin,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
 
 const io = new SocketIOServer(httpServer, {
   cors: {
@@ -62,57 +53,62 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendMessage", async ({ roomId, message, senderId, carId }) => {
-  console.log("Received message for room:", roomId, "Message:", message);
+    console.log("Received message for room:", roomId, "Message:", message);
 
-  try {
-    let thread = await MessageThread.findOne({ roomId: roomId });
-    if (!thread) {
-      const car = await Car.findById(carId); // Attempt to find the car.
-      if (!car) {
-        console.error(`Car with ID ${carId} not found.`);
-        socket.emit("error", `Car with ID ${carId} not found.`);
-        return; // Exit the function if no car is found.
-      }
+    try {
+      let thread = await MessageThread.findOne({ roomId: roomId });
+      if (!thread) {
+        const car = await Car.findById(carId); // Attempt to find the car.
+        if (!car) {
+          console.error(`Car with ID ${carId} not found.`);
+          socket.emit("error", `Car with ID ${carId} not found.`);
+          return; // Exit the function if no car is found.
+        }
 
-      console.log(`No existing thread found for room ID ${roomId}, creating a new one.`);
-      thread = new MessageThread({
-        roomId: roomId,
-        carId: carId,
-        buyerIds: [senderId], // Sender is assumed to be the buyer when creating a new thread.
-        sellerId: car.user, // The car's owner is the seller.
-        messages: [],
-      });
-      await thread.save();
-    } else {
-      // Check if sender is already a buyer or the seller
-      if (!thread.buyerIds.includes(senderId) && thread.sellerId.toString() !== senderId) {
-        thread.buyerIds.push(senderId); // Add new buyer if not already included
+        console.log(
+          `No existing thread found for room ID ${roomId}, creating a new one.`
+        );
+        thread = new MessageThread({
+          roomId: roomId,
+          carId: carId,
+          buyerIds: [senderId], // Sender is assumed to be the buyer when creating a new thread.
+          sellerId: car.user, // The car's owner is the seller.
+          messages: [],
+        });
         await thread.save();
-        console.log(`Added new buyer ${senderId} to room ${roomId}`);
+      } else {
+        // Check if sender is already a buyer or the seller
+        if (
+          !thread.buyerIds.includes(senderId) &&
+          thread.sellerId.toString() !== senderId
+        ) {
+          thread.buyerIds.push(senderId); // Add new buyer if not already included
+          await thread.save();
+          console.log(`Added new buyer ${senderId} to room ${roomId}`);
+        }
       }
+
+      const newMessage = new Message({
+        content: message,
+        threadId: thread._id,
+        senderId: senderId,
+      });
+      await newMessage.save();
+      thread.messages.push(newMessage._id);
+      await thread.save();
+
+      // Emit the message to all clients in the same room
+      io.to(roomId).emit("newMessage", {
+        content: message,
+        senderId: senderId,
+        createdAt: newMessage.createdAt,
+        _id: newMessage._id,
+      });
+    } catch (error) {
+      console.error("Error handling sendMessage:", error);
+      socket.emit("error", "Message processing failed.");
     }
-
-    const newMessage = new Message({
-      content: message,
-      threadId: thread._id,
-      senderId: senderId,
-    });
-    await newMessage.save();
-    thread.messages.push(newMessage._id);
-    await thread.save();
-
-    // Emit the message to all clients in the same room
-    io.to(roomId).emit("newMessage", {
-      content: message,
-      senderId: senderId,
-      createdAt: newMessage.createdAt,
-      _id: newMessage._id,
-    });
-  } catch (error) {
-    console.error("Error handling sendMessage:", error);
-    socket.emit("error", "Message processing failed.");
-  }
-});
+  });
 
   socket.on("messageCreationSuccess", (message) => {
     console.log("Message was created successfully:", message);
@@ -143,6 +139,15 @@ app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
       : err.message;
   res.status(err.statusCode).send(responseMessage);
 });
+
+app.use(
+  cors({
+    origin: frontendOrigin,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Start Server
 httpServer.listen(PORT, () => {
