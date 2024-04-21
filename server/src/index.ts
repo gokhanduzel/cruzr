@@ -144,10 +144,6 @@ app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
   res.status(err.statusCode).send(responseMessage);
 });
 
-app.use(express.static(path.resolve(__dirname, "./client/build")));
-app.get("*", function (request, response) {
-  response.sendFile(path.resolve(__dirname, "./client/build", "index.html"));
-});
 // Start Server
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
