@@ -35,6 +35,13 @@ connectDB();
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(cors({
+  origin: frontendOrigin, // Allow requests from your frontend origin
+  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
+  credentials: true, // Allow cookies to be sent with the requests
+  allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
+}));
+
 const io = new SocketIOServer(httpServer, {
   cors: {
     origin: frontendOrigin,
