@@ -26,30 +26,24 @@ class AppError extends Error {
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
-
-// Connect to database
-connectDB();
-
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
-
-// Define an array of allowed origins
 const allowedOrigins = [
   "https://frozen-pikachu-6cdbaae4e879.herokuapp.com",
   "http://localhost:5173" // Development URL
 ];
 
+// Connect to database
+connectDB();
+
 // CORS Options
 const corsOptions: CorsOptions = {
-  origin: (origin, callback) => {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     console.log(`Origin of request ${origin}`);
-    if (allowedOrigins.includes(origin ?? "")) {
+    if (!origin || allowedOrigins.includes(origin)) {
       console.log('Allowed CORS for:', origin);
       callback(null, true);
     } else {
       console.log('Blocked CORS for:', origin);
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS'), false);
     }
   },
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -58,6 +52,13 @@ const corsOptions: CorsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+
+
+
 
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.path} from ${req.ip}`);
