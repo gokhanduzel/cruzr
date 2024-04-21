@@ -38,7 +38,9 @@ app.use(cookieParser());
 const io = new SocketIOServer(httpServer, {
   cors: {
     origin: frontendOrigin,
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   },
 });
 
@@ -139,15 +141,6 @@ app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
       : err.message;
   res.status(err.statusCode).send(responseMessage);
 });
-
-app.use(
-  cors({
-    origin: frontendOrigin,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
 
 // Start Server
 httpServer.listen(PORT, () => {
