@@ -1,6 +1,4 @@
-import { ObjectId } from 'mongoose';
-
-export function generateRoomId(userId1: ObjectId | string | null, carId: ObjectId | string | null): string | null {
+export function generateRoomId(userId1: string | null, carId: string | null): string | null {
   if (!userId1 || !carId) {
     throw new Error('userId1, userId2 and carId are required');
   }
