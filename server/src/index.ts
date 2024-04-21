@@ -3,7 +3,7 @@ import { Server as SocketIOServer } from "socket.io";
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
 import connectDB from "./database";
 import carRoutes from "./routes/carRoutes";
 import userRoutes from "./routes/userRoutes";
@@ -35,16 +35,31 @@ connectDB();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({
-  origin: frontendOrigin, // Allow requests from your frontend origin
-  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
-  credentials: true, // Allow cookies to be sent with the requests
-  allowedHeaders: ["Content-Type", "Authorization"], // Specify allowed headers
-}));
+// Define an array of allowed origins
+const allowedOrigins = [
+  "https://frozen-pikachu-6cdbaae4e879.herokuapp.com",
+  "http://localhost:5173" // Development URL
+];
+
+// CORS Options
+const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin ?? "")) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
+
+app.use(cors(corsOptions));
 
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: frontendOrigin,
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
