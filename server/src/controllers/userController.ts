@@ -108,13 +108,15 @@ export const loginUser = async (req: Request, res: Response) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 900000,
+      secure: true, // Always true in production for security
+      sameSite: "none", // Necessary for cross-site usage
+      maxAge: 900000, // 15 minutes
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 604800000,
+      secure: true, // Always true in production for security
+      sameSite: "none", // Necessary for cross-site usage
+      maxAge: 604800000, // 7 days
     });
 
     console.log("accessToken:", accessToken);
