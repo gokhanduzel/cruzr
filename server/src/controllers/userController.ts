@@ -139,10 +139,18 @@ export const loginUser = async (req: Request, res: Response) => {
 // User logout
 export const logoutUser = async (req: Request, res: Response) => {
   // Clear the accessToken cookie
-  res.clearCookie("accessToken");
-
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,  // Match the settings used when setting the cookie
+    sameSite: 'none',
+  });
   // If using refresh tokens, clear that cookie as well
-  res.clearCookie("refreshToken");
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,  // Match the settings used when setting the cookie
+    sameSite: 'none',
+    // Add domain if it was set when creating the cookie
+  });
 
   res.json({ message: "Logout successful" });
 };
