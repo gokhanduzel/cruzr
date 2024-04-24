@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCurrentUserDetails, selectIsLoggedIn, setLoggedIn } from "../features/auth/authSlice";
+import {
+  fetchCurrentUserDetails,
+  selectIsLoggedIn,
+  setLoggedIn,
+} from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import * as authService from "../features/auth/authService";
 import { Link } from "react-router-dom";
@@ -24,12 +28,14 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await authService.login(email, password); 
+      await authService.login(email, password);
       dispatch(setLoggedIn(true));
       dispatch(fetchCurrentUserDetails);
       navigate("/cars");
     } catch (error) {
-      setError("Failed to log in. Please check your credentials and try again.");
+      setError(
+        "Failed to log in. Please check your credentials and try again."
+      );
       console.error(error);
     }
   };
@@ -41,7 +47,8 @@ const LoginPage: React.FC = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-100">
             Sign in to your account
           </h2>
-          {error && <p className="text-red-500 text-center mt-2">{error}</p>} {/* Display error message */}
+          {error && <p className="text-red-500 text-center mt-2">{error}</p>}{" "}
+          {/* Display error message */}
         </div>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <input type="hidden" name="remember" value="true" />
@@ -99,6 +106,12 @@ const LoginPage: React.FC = () => {
             </div>
             <a
               href="#"
+              onClick={(e) => {
+                e.preventDefault(); // Prevent the default anchor link behavior
+                alert(
+                  "Too bad :( I didn't develop this yet! Create a new account and don't forget it again :)"
+                );
+              }}
               className="ms-auto text-sm text-blue-700 hover:underline dark:text-blue-500"
             >
               Lost Password?

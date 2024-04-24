@@ -25,7 +25,6 @@ import { AppDispatch, RootState } from "../app/store";
 import { fetchUserByCarId, selectCarOwner } from "../features/cars/carSlice";
 import { FaCar } from "react-icons/fa";
 
-
 interface ChatComponentProps {
   roomId: string;
   carId: string;
@@ -116,16 +115,16 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ roomId, carId }) => {
           <li
             key={index}
             className={`p-2 my-1 text-sm rounded-lg max-w-[80%] ${
-              msg.senderId === ownerId
-                ? "bg-orange-500 text-black mr-auto" // Owner messages on the right
-                : msg.senderId === currentUser?._id
+              msg.senderId === currentUser?._id
                 ? "bg-indigo-500 text-white ml-auto" // Current user's messages on the right
+                : msg.senderId === ownerId
+                ? "bg-orange-500 text-black mr-auto" // Car owner's messages on the left if not the current user
                 : "bg-gray-200 mr-auto" // Other users' messages on the left
             }`}
           >
             <div className="flex flex-row items-center">
-            {msg.senderId === ownerId ? <FaCar className="mr-1"/> : null}
-            <strong>{usernames[msg.senderId]}:</strong> {msg.content}
+              {msg.senderId === ownerId ? <FaCar className="mr-1" /> : null}
+              <strong>{usernames[msg.senderId]}:</strong> {msg.content}
             </div>
             <div className="text-xs text-black-500 text-right mt-1">
               {formatDate(msg.createdAt)}

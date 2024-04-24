@@ -108,14 +108,16 @@ export const loginUser = async (req: Request, res: Response) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true, // Always true in production for security
-      sameSite: "none", // Necessary for cross-site usage
+      secure: process.env.NODE_ENV === 'production', // Always true in production for security
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Necessary for cross-site usage
+      path: '/',
       maxAge: 900000, // 15 minutes
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true, // Always true in production for security
-      sameSite: "none", // Necessary for cross-site usage
+      secure: process.env.NODE_ENV === 'production', // Always true in production for security
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Necessary for cross-site usage
+      path: '/',
       maxAge: 604800000, // 7 days
     });
 

@@ -72,6 +72,21 @@ const MainPage: React.FC = () => {
 
   const toggleFilters = () => setShowFilters((prev) => !prev);
 
+  const resetFilters = () => {
+    setFilter({
+      make: "",
+      model: "",
+      yearMin: "",
+      yearMax: "",
+      mileageMin: "",
+      mileageMax: "",
+      priceMin: "",
+      priceMax: "",
+    });
+    // You may also want to re-fetch all cars if needed.
+    // dispatch(fetchCarsWithFilters({}));
+  };
+
   return (
     <div className="relative">
       <div
@@ -156,10 +171,16 @@ const MainPage: React.FC = () => {
             className="p-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
-        <div className="col-span-1 sm:col-span-2 md:col-span-4 flex justify-end">
+        <div className="col-span-1 sm:col-span-2 md:col-span-4 flex justify-end space-x-3">
+          <button
+            onClick={resetFilters}
+            className="mt-2 py-2 px-4 bg-gray-500 hover:bg-gray-700 transition duration-300 text-white font-bold rounded"
+          >
+            Reset Filters
+          </button>
           <button
             onClick={handleApplyFilters}
-            className="mt-2 py-2 px-4 bg-indigo-500 hover:bg-indigo-700 transition duration-300 text-white font-bold rounded  "
+            className="mt-2 py-2 px-4 bg-indigo-500 hover:bg-indigo-700 transition duration-300 text-white font-bold rounded"
           >
             Apply Filters
           </button>

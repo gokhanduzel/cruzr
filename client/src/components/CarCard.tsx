@@ -6,7 +6,7 @@ import { AppDispatch, RootState } from "../app/store";
 import {
   fetchUserDetailsById,
   selectUserDetailsById,
-  selectIsLoggedIn
+  selectIsLoggedIn,
 } from "../features/auth/authSlice";
 
 interface CarCardProps {
@@ -26,10 +26,12 @@ const CarCard: React.FC<CarCardProps> = ({
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const dispatch = useDispatch<AppDispatch>();
-  const ownerDetails = useSelector((state: RootState) => carData.user ? selectUserDetailsById(state, carData.user) : null);
+  const ownerDetails = useSelector((state: RootState) =>
+    carData.user ? selectUserDetailsById(state, carData.user) : null
+  );
   const isLoggedIn = useSelector((state: RootState) => selectIsLoggedIn(state));
 
-  console.log('CarData User:', carData.user);
+  console.log("CarData User:", carData.user);
 
   useEffect(() => {
     // Only dispatch the action if carData.user is not undefined
@@ -95,9 +97,10 @@ const CarCard: React.FC<CarCardProps> = ({
         )}
         <div className="px-6 py-4 flex-grow">
           <div className="font-bold text-xl mb-2">
-            {carData.make} {carData.carModel} ({carData.year})
+            {carData.make} {carData.carModel}
+            <br />({carData.year})
             <br />
-            Owned by: {ownerDetails ? ownerDetails.username : 'Loading...'}
+            Owned by: {ownerDetails ? ownerDetails.username : "Loading..."}
           </div>
           <div className="py-2 border-b-2">
             <p className="text-gray-700 text-base">
@@ -118,24 +121,27 @@ const CarCard: React.FC<CarCardProps> = ({
             )}
           </div>
         </div>
-        {isOwner ? (
-          <div className="p-2 text-white bg-gray-500 rounded-b-lg text-sm text-center">
-            Your Listing
-          </div>
-        ) : (
-          <button
-            onClick={handleChat}
-            className="p-2 text-white bg-indigo-500 hover:bg-indigo-700 transition duration-300 rounded-b-lg text-sm"
-          >
-            Chat
-          </button>
-        )}
-        {isInMyProfile && onDelete && (
+        {isInMyProfile ? (
+          // When viewing in MyProfile, show only the Delete button if the user is the owner
           <button
             onClick={() => carData._id && onDelete?.(carData._id)}
             className="p-2 text-white bg-red-600 hover:bg-red-700 rounded-b-lg text-sm"
           >
             Delete
+          </button>
+        ) : // When viewing in main page
+        isOwner ? (
+          // If the user is the owner, show "Your Listing"
+          <div className="p-2 text-white bg-gray-500 rounded-b-lg text-sm text-center">
+            Your Listing
+          </div>
+        ) : (
+          // If the user is not the owner, show the Chat button
+          <button
+            onClick={handleChat}
+            className="p-2 text-white bg-indigo-500 hover:bg-indigo-700 transition duration-300 rounded-b-lg text-sm"
+          >
+            Chat
           </button>
         )}
       </div>
