@@ -108,16 +108,16 @@ export const loginUser = async (req: Request, res: Response) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Always true in production for security
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Necessary for cross-site usage
-      path: '/',
+      secure: process.env.NODE_ENV === "production", // Always true in production for security
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Necessary for cross-site usage
+      path: "/",
       maxAge: 900000, // 15 minutes
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Always true in production for security
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Necessary for cross-site usage
-      path: '/',
+      secure: process.env.NODE_ENV === "production", // Always true in production for security
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Necessary for cross-site usage
+      path: "/",
       maxAge: 604800000, // 7 days
     });
 
@@ -143,14 +143,16 @@ export const logoutUser = async (req: Request, res: Response) => {
   // Clear the accessToken cookie
   res.clearCookie("accessToken", {
     httpOnly: true,
-    secure: true,  // Match the settings used when setting the cookie
-    sameSite: 'none',
+    secure: process.env.NODE_ENV === "production", // Always true in production for security
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Necessary for cross-site usage
+    path: "/",
   });
   // If using refresh tokens, clear that cookie as well
   res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: true,  // Match the settings used when setting the cookie
-    sameSite: 'none',
+      secure: process.env.NODE_ENV === 'production', // Always true in production for security
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Necessary for cross-site usage
+      path: '/',
     // Add domain if it was set when creating the cookie
   });
 
