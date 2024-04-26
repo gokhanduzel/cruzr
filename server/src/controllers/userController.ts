@@ -77,9 +77,16 @@ export const registerUser = async (req: Request, res: Response) => {
   }
 };
 
+const isSafari = (userAgent: string): boolean => {
+  return userAgent.includes("Safari") && !userAgent.includes("Chrome");
+};
+
 // User Login
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
+  const userAgent = req.headers["user-agent"] || "";
+  const useSecure =
+    process.env.NODE_ENV === "production" || !isSafari(userAgent);
 
   try {
     const user = await User.findOne({ email });
@@ -108,15 +115,15 @@ export const loginUser = async (req: Request, res: Response) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Always true in production for security
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Necessary for cross-site usage
+      secure: useSecure,
+      sameSite: "none",
       path: "/",
-      maxAge: 900000, // 15 minutes
+      maxAge: 1800000, // 30 minutes
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Always true in production for security
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Necessary for cross-site usage
+      secure: useSecure,
+      sameSite: "none",
       path: "/",
       maxAge: 604800000, // 7 days
     });
@@ -140,20 +147,24 @@ export const loginUser = async (req: Request, res: Response) => {
 
 // User logout
 export const logoutUser = async (req: Request, res: Response) => {
+  const userAgent = req.headers['user-agent'] || '';
+  const useSecure = process.env.NODE_ENV === "production" || !isSafari(userAgent);
+
   // Clear the accessToken cookie
   res.clearCookie("accessToken", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Always true in production for security
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // Necessary for cross-site usage
+    secure: useSecure,
+    sameSite: "none",
     path: "/",
+    maxAge: 0  // Expire immediately
   });
   // If using refresh tokens, clear that cookie as well
   res.clearCookie("refreshToken", {
     httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Always true in production for security
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Necessary for cross-site usage
-      path: '/',
-    // Add domain if it was set when creating the cookie
+    secure: useSecure,
+    sameSite: "none",
+    path: "/",
+    maxAge: 0  // Expire immediately
   });
 
   res.json({ message: "Logout successful" });
