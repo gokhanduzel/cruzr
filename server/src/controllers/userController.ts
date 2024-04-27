@@ -116,14 +116,14 @@ export const loginUser = async (req: Request, res: Response) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: useSecure,
-      sameSite: "none",
+      sameSite: isSafari(userAgent) ? 'lax' : 'none',
       path: "/",
       maxAge: 1800000, // 30 minutes
     });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: useSecure,
-      sameSite: "none",
+      sameSite: isSafari(userAgent) ? 'lax' : 'none',
       path: "/",
       maxAge: 604800000, // 7 days
     });
@@ -154,7 +154,7 @@ export const logoutUser = async (req: Request, res: Response) => {
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: useSecure,
-    sameSite: "none",
+    sameSite: isSafari(userAgent) ? 'lax' : 'none',
     path: "/",
     maxAge: 0  // Expire immediately
   });
@@ -162,7 +162,7 @@ export const logoutUser = async (req: Request, res: Response) => {
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: useSecure,
-    sameSite: "none",
+    sameSite: isSafari(userAgent) ? 'lax' : 'none',
     path: "/",
     maxAge: 0  // Expire immediately
   });
